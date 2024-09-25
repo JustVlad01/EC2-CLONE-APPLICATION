@@ -29,6 +29,49 @@ const goBack = () => {
   emit('switchView', 'mainBlock');
 }
 
+export default {
+  data() {
+    return {
+      formData: {
+        name: '',
+        email: '',
+        password: '',
+        username: '',
+        address: {
+          country: '',
+          eircode: '',
+          county: '',
+          city: '',
+          parking: 'true',
+          street: '',
+        },
+      },
+    };
+  },
+  methods: {
+    async submitForm() {
+      try {
+        const response = await fetch('http://localhost:3000/api/hotel', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(this.formData),
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to submit form');
+        }
+
+        const result = await response.json();
+        console.log('Form submitted successfully:', result);
+      } catch (error) {
+        console.error('Error submitting form:', error);
+      }
+    },
+  },
+};
+
 // Function to switch between steps
 const goToStep = (step) => {
   steps.value.forEach((s) => (s.open = false)); // Close all steps
@@ -66,6 +109,60 @@ const submitForm = () => {
       <h2 class="step-header">{{ step.title }}</h2>
         <div class="step-content">
           <template v-if="step.id === 1">
+            <template>
+              <div>
+                <form @submit.prevent="submitForm">
+                  <div>
+                    <label for="name">Name:</label>
+                    <input type="text" v-model="formData.name" id="name" required />
+                  </div>
+
+                  <div>
+                    <label for="email">Email:</label>
+                    <input type="email" v-model="formData.email" id="email" required />
+                  </div>
+
+                  <div>
+                    <label for="password">Password:</label>
+                    <input type="password" v-model="formData.password" id="password" required />
+                  </div>
+
+                  <div>
+                    <label for="username">Username:</label>
+                    <input type="text" v-model="formData.username" id="username" required />
+                  </div>
+
+                  <h3>Address</h3>
+                  <div>
+                    <label for="country">Country:</label>
+                    <input type="text" v-model="formData.address.country" id="country" required />
+                  </div>
+
+                  <div>
+                    <label for="eircode">Eircode:</label>
+                    <input type="text" v-model="formData.address.eircode" id="eircode" required />
+                  </div>
+
+                  <div>
+                    <label for="county">County:</label>
+                    <input type="text" v-model="formData.address.county" id="county" required />
+                  </div>
+
+                  <div>
+                    <label for="city">City:</label>
+                    <input type="text" v-model="formData.address.city" id="city" required />
+                  </div>
+
+                  <div>
+                    <label for="street">Street:</label>
+                    <input type="text" v-model="formData.address.street" id="street" required />
+                  </div>
+
+                  <button type="submit">Submit</button>
+                </form>
+              </div>
+            </template>
+
             <div class="form-group">
               <label for="hotelName">Hotel Name:</label>
               <input v-model="formData.hotelName" type="text" id="hotelName" required />
