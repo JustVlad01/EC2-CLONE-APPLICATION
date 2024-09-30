@@ -1,8 +1,11 @@
 <script setup>
+
 </script>
 
 <template>
-  <main>
-    lolIks
-  </main>
+  $END$
 </template>
+
+<style scoped>
+
+</style>
