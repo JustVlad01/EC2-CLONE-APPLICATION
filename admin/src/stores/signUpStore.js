@@ -1,12 +1,19 @@
 import { ref, computed } from 'vue'
 import { defineStore } from 'pinia'
 
-export const useCounterStore = defineStore('counter', () => {
-  const count = ref(0)
-  const doubleCount = computed(() => count.value * 2)
-  function increment() {
-    count.value++
+export const useSignUpStore = defineStore('signUp', () => {
+  const signUpPagesEnum = {
+    WELCOME: 1,
+    HOTEL: 2,
+    REGISTER: 3,
+    SIGNIN: 4,
   }
 
-  return { count, doubleCount, increment }
+  const currentPage = ref(signUpPagesEnum.WELCOME);
+
+  function goTo(page){
+    currentPage.value = page;
+  }
+
+  return { goTo, signUpPagesEnum, currentPage}
 })

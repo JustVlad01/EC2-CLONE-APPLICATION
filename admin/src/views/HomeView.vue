@@ -1,9 +1,14 @@
 <script setup>
-import RegistrationSection from "@/components/RegistrationSection.vue";
+import SignUp from "@/components/SignUp.vue";
+import {useSignUpStore} from "@/stores/signUpStore.js";
+
+const signUpStore = useSignUpStore();
 </script>
 
 <template>
   <main>
-    <RegistrationSection></RegistrationSection>
+    <Transition name="fade" mode="out-in">
+      <sign-up v-if="signUpStore.currentPage === signUpStore.signUpPagesEnum.WELCOME" />
+    </Transition>
   </main>
 </template>
