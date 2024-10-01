@@ -65,7 +65,7 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <div class="sign-up">
+  <div class="sign-up-block">
     <div
         class="welcome-text"
         :style="welcomeTextStyles"
@@ -86,13 +86,8 @@ onBeforeUnmount(() => {
 </template>
 
 <style scoped>
-.sign-up {
-  display: block;
-  height: 100vh;
+.sign-up-block {
   text-align: center;
-  font-family: Arial, sans-serif;
-  padding: 30px;
-  position: relative;
 }
 
 .welcome-text {
