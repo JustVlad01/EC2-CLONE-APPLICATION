@@ -3,6 +3,7 @@ import { ref, computed, reactive } from 'vue';
 import { useSignUpStore } from "@/stores/signUpStore.js";
 import InputField from "@/components/UI/InputField.vue";
 import FormGroup from "@/components/UI/FormGroup.vue";
+import axios from "axios";
 
 // Import the store
 const signUpStore = useSignUpStore();
@@ -68,6 +69,16 @@ const prevStep = () => {
   if (currentStep.value > 0) {
     progress[currentStep.value].completed = false;
     currentStep.value -= 1;
+  }
+};
+
+// Function to submit the form data
+const submitForm = async () => {
+  try {
+    const response = await axios.post(`${import.meta.env.VITE_API_URL}/hotel/create`, data);
+    console.log(response.data);
+  } catch (error) {
+    console.error('Error submitting form:', error.response.data);
   }
 };
 
@@ -175,7 +186,7 @@ const isLastStep = computed(() => currentStep.value === totalSteps.value - 1);
         <div v-if="currentStep === 0"></div>
         <button @click="prevStep" v-if="currentStep > 0">Back</button>
         <button @click="nextStep" v-if="!isLastStep">Next</button>
-        <button v-if="isLastStep">Submit</button>
+        <button @click="submitForm" v-if="isLastStep">Submit</button>
       </div>
     </div>
   </div>

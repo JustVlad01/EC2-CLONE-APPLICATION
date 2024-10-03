@@ -1,15 +1,37 @@
 const mongoose = require('mongoose');
 
 const restaurantSchema = new mongoose.Schema({
+    //Restaurant fields
     name: { type: String, required: true },
-    ownerId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+    phone: { type: String, required: true },
+    email: { type: String, required: true },
+    //Owner ID
+    ownerId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: false },
+    //Address schema
     address: {
-        street: { type: String, required: false },
-        city: { type: String, required: false },
-        county: { type: String, required: false },
-        eircode: { type: String, required: false },
-        country: { type: String, required: false },
+        city: { type: String, required: true },
+        county: { type: String, required: true },
+        eircode: { type: String, required: true },
+        country: { type: String, required: true },
     },
+    //Opening hours schema
+    openingHours: {
+        week: {
+            open: { type: String, required: true },
+            close: { type: String, required: true },
+        },
+        saturday: {
+            open: { type: String, required: true },
+            close: { type: String, required: true},
+        },
+        sunday: {
+            open: { type: String, required: true },
+            close: { type: String, required: true},
+        },
+    },
+    //Other fields
+    website: { type: String },
+    cusineType: { type: String },
     restaurantCode: { type: String, unique: true, required: true },
     subscriptionStatus: { type: String, enum: ['active', 'inactive'], default: 'inactive' },
     subscriptionEndDate: { type: Date },

@@ -21,7 +21,7 @@ const createUser = async (req, res) => {
         user = new User({ 
             username, 
             password: hashedPassword, 
-            role: role || 'user', 
+            role: role || 'staff',
             email, 
         });
 
@@ -30,7 +30,7 @@ const createUser = async (req, res) => {
         // Generate JWT
         const token = jwt.sign(
             {
-                userId: user._id,
+                id: user._id,
                 username: user.username,
                 role: user.role,
             },
@@ -77,7 +77,7 @@ const loginUser = async (req, res) => {
         // Generate JWT if passwords match
         const token = jwt.sign(
             {
-                userId: user._id,
+                id: user._id,
                 username: user.username,
                 role: user.role,
             },

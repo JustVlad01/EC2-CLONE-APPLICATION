@@ -1,73 +1,87 @@
 const Restaurant = require('../models/Restaurant');
-const { createUser } = require('./UserController'); // Import UserController method
-const jwt = require('jsonwebtoken');
-const bcrypt = require('bcrypt');
 const User = require('../models/User');
+const Role = require('../models/roles');
+const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
 
+// Create a new restaurant with an owner
 const createRestaurant = async (req, res) => {
     try {
-        console.log(req.body);
-        const { name, email, password, username, address } = req.body;
+        const { restaurant, owner, subscription } = req.body;
 
-        // Step 1: Check if the user already exists
-        let user = await User.findOne({ username });
+        // Check if the owner username already exists
+        let user = await User.findOne({ username: owner.username });
         if (user) {
-            return res.status(400).json({ msg: 'User already exists' });
+            return res.status(400).json({ msg: 'Owner username already exists' });
         }
 
-        // Step 2: Hash the password
+        // Hash the owner's password
         const saltRounds = 10;
-        const hashedPassword = await bcrypt.hash(password, saltRounds);
+        const hashedPassword = await bcrypt.hash(owner.password, saltRounds);
 
-        // Step 3: Create the owner/admin user
+        // Create the restaurant
+        const newRestaurant = new Restaurant({
+            name: restaurant.name,
+            address: restaurant.address,
+            phone: restaurant.phoneNumber,
+            email: restaurant.email,
+            website: restaurant.website,
+            openingHours: restaurant.openingHours,
+            cuisineType: restaurant.cuisineType,
+        });
+        await newRestaurant.save();
+
+        // Create the Owner role with priority 1
+        const ownerRole = new Role({
+            name: 'owner',
+            permissions: [], // Define the permissions for the owner role
+            restaurantId: newRestaurant._id,
+            priority: 1,
+        });
+        await ownerRole.save();
+
+        // Create the owner user
         user = new User({
-            username,
+            name: owner.name,
+            username: owner.username,
             password: hashedPassword,
-            role: 'owner',
-            email,
+            roleId: ownerRole._id,
+            email: owner.email,
+            number: owner.phoneNumber,
+            restaurantId: newRestaurant._id,
         });
         await user.save();
 
-        // Step 4: Generate JWT for the owner
+        // Create JWT token for owner
         const token = jwt.sign(
             {
                 userId: user._id,
                 username: user.username,
-                role: user.role,    
+                role: 'owner',
+                restaurantId: newRestaurant._id,
             },
             process.env.JWT_SECRET_KEY,
             { expiresIn: '24h' }
         );
 
-        res.cookie('token', token, {
-            httpOnly: true,
-            maxAge: 24 * 60 * 60 * 1000,
-        });
+        // Set the token in the response
+        res.cookie('token', token, { httpOnly: true, maxAge: 24 * 60 * 60 * 1000 });
 
-        //Step 5: Create the restaurant
-        const restaurant = new Restaurant({
-            name,
-            address,
-            ownerId: user._id,
-        });
-        await restaurant.save();
-
-        return res.status(201).json({
-            msg: 'Restaurant created successfully',
-            restaurant,
+        res.status(201).json({
+            msg: 'Restaurant and owner created successfully',
+            restaurant: newRestaurant,
             owner: {
                 id: user._id,
                 username: user.username,
-                role: user.role,
                 email: user.email,
+                phoneNumber: user.phoneNumber,
             },
             token,
         });
     } catch (error) {
-        return res.status(500).json({ msg: 'Error creating restaurant', error });
+        console.error(error);
+        res.status(500).json({ msg: 'Server error', error });
     }
 };
 
-module.exports = {
-    createRestaurant,
-};
+module.exports = { createRestaurant };
