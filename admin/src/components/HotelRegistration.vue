@@ -150,9 +150,9 @@ const isLastStep = computed(() => currentStep.value === totalSteps.value - 1);
       <div v-if="currentStep === 2">
         <FormGroup label="Subscription">
           <SubscriptionSection>
-            <SubscriptionItem plan="Basic" price="€50/month" @selectPlan="data.subscription.plan = $event" />
-            <SubscriptionItem plan="Pro" price="€100/month" @selectPlan="data.subscription.plan = $event" />
-            <SubscriptionItem plan="Premium" price="€200/month" @selectPlan="data.subscription.plan = $event" />
+            <SubscriptionItem plan="Basic" price="50" @selectPlan="data.subscription.plan = $event" />
+            <SubscriptionItem plan="Pro" price="100" recommended @selectPlan="data.subscription.plan = $event" />
+            <SubscriptionItem plan="Premium" price="200" @selectPlan="data.subscription.plan = $event" />
           </SubscriptionSection>
         </FormGroup>
       </div>
