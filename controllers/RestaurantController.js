@@ -1,4 +1,4 @@
-const Restaurant = require('../models/Restaurant');
+const Restaurant = require('../models/restaurant');
 const User = require('../models/User');
 const Role = require('../models/roles');
 const bcrypt = require('bcrypt');
