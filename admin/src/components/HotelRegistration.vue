@@ -4,6 +4,8 @@ import { useSignUpStore } from "@/stores/signUpStore.js";
 import InputField from "@/components/UI/InputField.vue";
 import FormGroup from "@/components/UI/FormGroup.vue";
 import axios from "axios";
+import SubscriptionSection from "@/components/SubscriptionSection.vue";
+import SubscriptionItem from "@/components/SubscriptionItem.vue";
 
 // Import the store
 const signUpStore = useSignUpStore();
@@ -146,17 +148,12 @@ const isLastStep = computed(() => currentStep.value === totalSteps.value - 1);
 
       <!-- Step 3: Subscription Details -->
       <div v-if="currentStep === 2">
-        <FormGroup>
-          <InputField type="text" label="Subscription Plan" v-model="data.subscription.plan" />
-          <InputField type="text" label="Business License" v-model="data.subscription.businessLicense" />
-          <InputField type="text" label="Tax ID" v-model="data.subscription.taxID" />
-          <InputField type="text" label="Payment Methods" v-model="data.subscription.paymentMethods" />
-          <label>
-            <input type="checkbox" v-model="data.subscription.deliveryOptions" /> Offers Delivery
-          </label>
-          <label>
-            <input type="checkbox" v-model="data.subscription.reservationSystem" /> Has Reservation System
-          </label>
+        <FormGroup label="Subscription">
+          <SubscriptionSection>
+            <SubscriptionItem plan="Basic" price="€50/month" @selectPlan="data.subscription.plan = $event" />
+            <SubscriptionItem plan="Pro" price="€100/month" @selectPlan="data.subscription.plan = $event" />
+            <SubscriptionItem plan="Premium" price="€200/month" @selectPlan="data.subscription.plan = $event" />
+          </SubscriptionSection>
         </FormGroup>
       </div>
 
