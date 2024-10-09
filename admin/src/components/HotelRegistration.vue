@@ -21,7 +21,7 @@ const progress = reactive([
 // Split the data into different objects
 const data = reactive({
   restaurant: {
-    name: '',
+    name: "",
     address: { country: '', city: '', county: '', eircode: ''},
     phoneNumber: '',
     email: '',
@@ -41,15 +41,12 @@ const data = reactive({
   owner: {
     name: '',
     email: '',
-    phoneNumber: ''
+    phoneNumber: '',
+    password: '',
+    username: ''
   },
   subscription: {
     plan: '',
-    businessLicense: '',
-    taxID: '',
-    paymentMethods: '',
-    deliveryOptions: false,
-    reservationSystem: false
   }
 });
 
@@ -84,6 +81,14 @@ const submitForm = async () => {
   }
 };
 
+// Track selected plan in parent component
+const selectedPlan = ref(''); // To store the currently selected plan
+
+const handleSelectPlan = (plan) => {
+  selectedPlan.value = plan; // Set the selected plan in the parent
+  data.subscription.plan = plan; // Store the plan in the subscription data
+};
+
 // Check if the current step is completed
 const isLastStep = computed(() => currentStep.value === totalSteps.value - 1);
 </script>
@@ -105,7 +110,8 @@ const isLastStep = computed(() => currentStep.value === totalSteps.value - 1);
       <!-- Step 1: Restaurant Details -->
       <div v-if="currentStep === 0">
         <FormGroup label="Restaurant info">
-          <InputField type="text" label="Restaurant Name" v-model="data.restaurant.name" required />
+          <InputField type="text" label="Restaurant Name" v-model="data.restaurant.name.value" required />
+          <div v-if="data.restaurant.name.error">Erorr pizdec</div>
           <InputField type="text" label="Phone Number" v-model="data.restaurant.phoneNumber" required/>
           <InputField type="email" label="Restaurant Email" v-model="data.restaurant.email" required/>
         </FormGroup>
@@ -150,9 +156,9 @@ const isLastStep = computed(() => currentStep.value === totalSteps.value - 1);
       <div v-if="currentStep === 2">
         <FormGroup label="Subscription">
           <SubscriptionSection>
-            <SubscriptionItem plan="Basic" price="50" @selectPlan="data.subscription.plan = $event" />
-            <SubscriptionItem plan="Pro" price="100" recommended @selectPlan="data.subscription.plan = $event" />
-            <SubscriptionItem plan="Premium" price="200" @selectPlan="data.subscription.plan = $event" />
+            <SubscriptionItem plan="Basic" price="50" :selected="selectedPlan === 'Basic'" @selectPlan="handleSelectPlan" />
+            <SubscriptionItem plan="Pro" price="100" :selected="selectedPlan === 'Pro'" recommended @selectPlan="handleSelectPlan" />
+            <SubscriptionItem plan="Premium" price="200" :selected="selectedPlan === 'Premium'" @selectPlan="handleSelectPlan" />
           </SubscriptionSection>
         </FormGroup>
       </div>

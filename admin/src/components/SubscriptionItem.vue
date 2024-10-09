@@ -1,8 +1,11 @@
 <script setup>
+import {computed, onMounted, ref, watch} from "vue";
+
 const props = defineProps({
   plan: String,
   price: String,
-  recommended: Boolean
+  recommended: Boolean,
+  selected: Boolean
 });
 
 const features = [
@@ -17,6 +20,8 @@ const features = [
   'Advanced analytics',
 ];
 
+const chosenPlan = ref(null);
+
 const featuresByPlan = {
   'Basic': features.slice(0, 3), // Basic plan includes first 3 features
   'Pro': features.slice(0, 5), // Standard includes the first 5 features
@@ -25,13 +30,54 @@ const featuresByPlan = {
 
 const emit = defineEmits(['selectPlan']);
 
+// For animating the percentage value
+const animatedPercentage = ref(0);
+
+// Function to animate number from 0 to 100 (or any other value)
+const animateNumber = (start, end, duration) => {
+  const startTime = performance.now();
+  const step = (currentTime) => {
+    const elapsedTime = currentTime - startTime;
+    const progress = Math.min(elapsedTime / duration, 1); // Ensure progress doesn't exceed 1
+    animatedPercentage.value = Math.floor(start + (end - start) * progress); // Update the number smoothly
+
+    if (progress < 1) {
+      requestAnimationFrame(step);
+    }
+  };
+
+  requestAnimationFrame(step);
+};
+
+onMounted(() => {
+  if (props.selected) {
+    animateNumber(0, 100, 300); // Animate from 0 to 100 in 0.3 seconds
+  }
+});
+
+// Watch for changes in the `selected` prop
+watch(
+    () => props.selected,
+    (newVal) => {
+      if (newVal) {
+        animateNumber(0, 100, 300); // Animate from 0 to 100 in 0.3 seconds
+      } else {
+        animateNumber(100, 0, 300);
+      }
+    }
+);
+
 const selectPlan = () => {
   emit('selectPlan', props.plan);
 };
 </script>
 
 <template>
-  <div class="item" :class="{recommended: recommended}" @click="selectPlan">
+  <div class="item"
+       :style="{
+          background: 'radial-gradient(circle, rgb(19 59 154) ' + animatedPercentage + '%, rgba(255,255,255,1) ' + animatedPercentage + '%)'
+        }"
+       :class="{ selected: props.selected, recommended: props.recommended }" @click="selectPlan">
     <span class="title">{{ props.plan }}</span>
     <ul class="feature-list">
       <li v-for="feature in features" :key="feature" :class="{ unavailable: !featuresByPlan[props.plan].includes(feature) }">
@@ -51,7 +97,8 @@ const selectPlan = () => {
 
 .item {
   width: 32%;
-  background-color: white;
+  background: radial-gradient(circle, rgba(22,51,75,1) 0%, rgba(255,255,255,1) 0%);
+  background-size: 150%;
   border-radius: 5px;
   padding: 10px;
   border: 2px solid blue;
@@ -59,7 +106,11 @@ const selectPlan = () => {
   cursor: pointer;
   transform: scale(0.9);
   box-shadow: 0 0 8px 4px rgba(0, 0, 0, 0.1);
-  transition: transform 0.3s, box-shadow 0.3s;
+  transition: transform 0.3s, box-shadow 0.3s, background-size 0.5s ease-in-out;
+}
+
+.item.selected{
+  color: white;
 }
 
 .item:hover {

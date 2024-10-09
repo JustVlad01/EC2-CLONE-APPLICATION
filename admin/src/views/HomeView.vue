@@ -1,5 +1,5 @@
 <script setup>
-import SignUp from "@/components/SignUp.vue";
+import SignUp from "@/components/SignOptions.vue";
 import {useSignUpStore} from "@/stores/signUpStore.js";
 import HotelRegistration from "@/components/HotelRegistration.vue";
 import RegistrationForm from "@/components/RegistrationForm.vue";
@@ -15,6 +15,8 @@ const signUpStore = useSignUpStore();
     <Transition name="fade" mode="out-in">
       <HotelRegistration v-if="signUpStore.currentPage === signUpStore.signUpPagesEnum.HOTEL" />
     </Transition>
-    <RegistrationForm v-if="signUpStore.currentPage === signUpStore.signUpPagesEnum.REGISTER"></RegistrationForm>
+    <Transition name="fade" mode="out-in">
+      <RegistrationForm v-if="signUpStore.currentPage === signUpStore.signUpPagesEnum.REGISTER"></RegistrationForm>
+    </Transition>
   </main>
 </template>
