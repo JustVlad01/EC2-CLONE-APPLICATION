@@ -8,6 +8,8 @@ import axios from "axios";
 import SubscriptionSection from "@/components/SubscriptionSection.vue";
 import SubscriptionItem from "@/components/SubscriptionItem.vue";
 
+const errorSubmit = ref(null);
+
 // Restaurant registration progress
 const progress = reactive([
   { title: 'Restaurant Details', completed: true },
@@ -105,6 +107,7 @@ const submitForm = async () => {
     const response = await axios.post(`${import.meta.env.VITE_API_URL}/hotel/create`, data);
     console.log(response.data);
   } catch (error) {
+    errorSubmit.value = error.response.data;
     console.error('Error submitting form:', error.response.data);
   }
 };
@@ -302,6 +305,7 @@ const isLastStep = computed(() => currentStep.value === totalSteps.value - 1);
             <p><strong>Promo Code:</strong> {{ data.subscription.promo || 'None' }}</p>
           </FormGroup>
         </FormGroup>
+        <span class="error-submit" v-if="errorSubmit">{{errorSubmit}}<span @click="errorSubmit.value = ''">X</span></span>
       </div>
 
       <!-- Navigation Buttons -->
@@ -345,6 +349,16 @@ const isLastStep = computed(() => currentStep.value === totalSteps.value - 1);
 
 .center {
   margin: 0 auto;
+}
+
+.error-submit {
+  background-color: #ff6969;
+  color: white;
+  padding: 10px;
+  border-radius: 5px;
+  margin-top: 20px;
+  display: flex;
+  justify-content: space-between;
 }
 
 .or-divider {
