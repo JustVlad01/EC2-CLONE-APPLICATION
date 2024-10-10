@@ -1,14 +1,12 @@
 <script setup>
 import { ref, computed, reactive } from 'vue';
-import { useSignUpStore } from "@/stores/signUpStore.js";
+import useVuelidate from '@vuelidate/core';
+import { required, email, numeric, minLength } from '@vuelidate/validators';
 import InputField from "@/components/UI/InputField.vue";
 import FormGroup from "@/components/UI/FormGroup.vue";
 import axios from "axios";
 import SubscriptionSection from "@/components/SubscriptionSection.vue";
 import SubscriptionItem from "@/components/SubscriptionItem.vue";
-
-// Import the store
-const signUpStore = useSignUpStore();
 
 // Restaurant registration progress
 const progress = reactive([
@@ -21,8 +19,8 @@ const progress = reactive([
 // Split the data into different objects
 const data = reactive({
   restaurant: {
-    name: "",
-    address: { country: '', city: '', county: '', eircode: ''},
+    name: '',
+    address: { country: '', city: '', county: '', eircode: '' },
     phoneNumber: '',
     email: '',
     website: '',
@@ -32,9 +30,9 @@ const data = reactive({
       wednesday: { open: '', close: '' },
       thursday: { open: '', close: '' },
       friday: { open: '', close: '' },
-      week: { open: '', close: ''},
+      week: { open: '', close: '' },
       saturday: { open: '', close: '' },
-      sunday: { open: '', close: ''}
+      sunday: { open: '', close: '' }
     },
     cuisineType: ''
   },
@@ -47,12 +45,37 @@ const data = reactive({
   },
   subscription: {
     plan: '',
+    promo: ''
   }
 });
 
+// Validation rules
+const rules = {
+  restaurant: {
+    name: { required },
+    phoneNumber: { required, numeric },
+    email: { required, email },
+    address: {
+      country: { required },
+      city: { required },
+      county: { required },
+      eircode: { required }
+    },
+  },
+  owner: {
+    name: { required },
+    email: { required, email },
+    phoneNumber: { required, numeric },
+    password: { required, minLength: minLength(8) },
+    username: { required },
+  },
+};
+
+// Vuelidate hook
+const v$ = useVuelidate(rules, data);
+
 // Computed step which will count the current active step index
 const currentStep = ref(0);
-
 const totalSteps = computed(() => progress.length);
 
 // Move to the next step
@@ -73,6 +96,11 @@ const prevStep = () => {
 
 // Function to submit the form data
 const submitForm = async () => {
+  v$.value.$touch();
+  if (v$.value.$invalid) {
+    alert('Please fill out all required fields correctly.');
+    return;
+  }
   try {
     const response = await axios.post(`${import.meta.env.VITE_API_URL}/hotel/create`, data);
     console.log(response.data);
@@ -94,7 +122,7 @@ const isLastStep = computed(() => currentStep.value === totalSteps.value - 1);
 </script>
 
 <template>
-  <div class="sign-up-block">
+  <div class="form-block">
     <h1>Register your restaurant now</h1>
 
     <!-- Progress bar -->
@@ -110,28 +138,73 @@ const isLastStep = computed(() => currentStep.value === totalSteps.value - 1);
       <!-- Step 1: Restaurant Details -->
       <div v-if="currentStep === 0">
         <FormGroup label="Restaurant info">
-          <InputField type="text" label="Restaurant Name" v-model="data.restaurant.name.value" required />
-          <div v-if="data.restaurant.name.error">Erorr pizdec</div>
-          <InputField type="text" label="Phone Number" v-model="data.restaurant.phoneNumber" required/>
-          <InputField type="email" label="Restaurant Email" v-model="data.restaurant.email" required/>
+          <InputField
+              type="text"
+              label="Restaurant Name"
+              v-model="data.restaurant.name"
+              :error="v$.restaurant.name.$error ? 'Restaurant Name is required.' : ''"
+              @blur="v$.restaurant.name.$touch()"
+              required
+          />
+          <InputField
+              type="text"
+              label="Phone Number"
+              v-model="data.restaurant.phoneNumber"
+              :error="v$.restaurant.phoneNumber.$error ? 'Phone Number is required and must be numeric.' : ''"
+              @blur="v$.restaurant.phoneNumber.$touch()"
+              required
+          />
+          <InputField
+              type="email"
+              label="Restaurant Email"
+              v-model="data.restaurant.email"
+              :error="v$.restaurant.email.$error ? 'Valid Email is required.' : ''"
+              @blur="v$.restaurant.email.$touch()"
+              required
+          />
         </FormGroup>
+
         <FormGroup label="Opening hours">
           <FormGroup sub-label="Monday to Friday">
-            <InputField type="time" label="Open" v-model="data.restaurant.openingHours.week.open" required/>
-            <InputField type="time" label="Close" v-model="data.restaurant.openingHours.week.close" required/>
+            <InputField type="time" label="Open" v-model="data.restaurant.openingHours.week.open" />
+            <InputField type="time" label="Close" v-model="data.restaurant.openingHours.week.close" />
           </FormGroup>
           <FormGroup sub-label="Weekend">
-            <InputField type="time" label="Saturday open" v-model="data.restaurant.openingHours.saturday.open" required/>
-            <InputField type="time" label="Saturday close" v-model="data.restaurant.openingHours.saturday.close" required/>
-            <InputField type="time" label="Sunday open" v-model="data.restaurant.openingHours.sunday.open" required/>
-            <InputField type="time" label="Sunday close" v-model="data.restaurant.openingHours.sunday.close" required/>
+            <InputField type="time" label="Saturday open" v-model="data.restaurant.openingHours.saturday.open" />
+            <InputField type="time" label="Saturday close" v-model="data.restaurant.openingHours.saturday.close" />
+            <InputField type="time" label="Sunday open" v-model="data.restaurant.openingHours.sunday.open" />
+            <InputField type="time" label="Sunday close" v-model="data.restaurant.openingHours.sunday.close" />
           </FormGroup>
         </FormGroup>
         <FormGroup label="Address">
-          <InputField type="text" label="Country" v-model="data.restaurant.address.country" required/>
-          <InputField type="text" label="County" v-model="data.restaurant.address.county" required/>
-          <InputField type="text" label="City" v-model="data.restaurant.address.city" required/>
-          <InputField type="text" label="Eircode" v-model="data.restaurant.address.eircode" required/>
+          <InputField
+              type="text"
+              label="Country"
+              v-model="data.restaurant.address.country"
+              :error="v$.restaurant.address.country.$error ? 'Country is required.' : ''"
+              @blur="v$.restaurant.address.country.$touch()"
+              required />
+          <InputField
+              type="text"
+              label="County"
+              v-model="data.restaurant.address.county"
+              :error="v$.restaurant.address.county.$error ? 'County is required.' : ''"
+              @blur="v$.restaurant.address.county.$touch()"
+              required />
+          <InputField
+              type="text"
+              label="City"
+              v-model="data.restaurant.address.city"
+              :error="v$.restaurant.address.city.$error ? 'City is required.' : ''"
+              @blur="v$.restaurant.address.city.$touch()"
+              required />
+          <InputField
+              type="text"
+              label="Eircode"
+              v-model="data.restaurant.address.eircode"
+              :error="v$.restaurant.address.eircode.$error ? 'Eircode is required.' : ''"
+              @blur="v$.restaurant.address.eircode.$touch()"
+              required />
         </FormGroup>
         <FormGroup label="Other">
           <InputField type="text" label="Website" v-model="data.restaurant.website" />
@@ -142,13 +215,48 @@ const isLastStep = computed(() => currentStep.value === totalSteps.value - 1);
       <!-- Step 2: Owner Details -->
       <div v-if="currentStep === 1">
         <FormGroup label="General Manager data">
-          <InputField type="text" label="Full Name" v-model="data.owner.name" required/>
-          <InputField type="text" label="Username" v-model="data.owner.username" required/>
-          <InputField type="phone" label="Phone Number" v-model="data.owner.phoneNumber" required/>
+          <InputField
+              type="text"
+              label="Full Name"
+              v-model="data.owner.name"
+              :error="v$.owner.name.$error ? 'Owner Name is required.' : ''"
+              @blur="v$.owner.name.$touch()"
+              required
+          />
+          <InputField
+              type="text"
+              label="Username"
+              v-model="data.owner.username"
+              :error="v$.owner.username.$error ? 'Username is required.' : ''"
+              @blur="v$.owner.username.$touch()"
+              required
+          />
+          <InputField
+              type="phone"
+              label="Phone Number"
+              v-model="data.owner.phoneNumber"
+              :error="v$.owner.phoneNumber.$error ? 'Phone Number is required and must be numeric.' : ''"
+              @blur="v$.owner.phoneNumber.$touch()"
+              required
+          />
         </FormGroup>
         <FormGroup label="Credentials">
-          <InputField type="password" label="Password" v-model="data.owner.password" required/>
-          <InputField type="email" label="Email" v-model="data.owner.email" required/>
+          <InputField
+              type="password"
+              label="Password"
+              v-model="data.owner.password"
+              :error="v$.owner.password.$error ? 'Password must be at least 8 characters long.' : ''"
+              @blur="v$.owner.password.$touch()"
+              required
+          />
+          <InputField
+              type="email"
+              label="Email"
+              v-model="data.owner.email"
+              :error="v$.owner.email.$error ? 'Valid Email is required.' : ''"
+              @blur="v$.owner.email.$touch()"
+              required
+          />
         </FormGroup>
       </div>
 
@@ -160,28 +268,40 @@ const isLastStep = computed(() => currentStep.value === totalSteps.value - 1);
             <SubscriptionItem plan="Pro" price="100" :selected="selectedPlan === 'Pro'" recommended @selectPlan="handleSelectPlan" />
             <SubscriptionItem plan="Premium" price="200" :selected="selectedPlan === 'Premium'" @selectPlan="handleSelectPlan" />
           </SubscriptionSection>
+          <span class="or-divider">OR</span>
+          <InputField type="text" class="center" label="Promo Code" v-model="data.subscription.promo" />
         </FormGroup>
       </div>
 
       <!-- Step 4: Confirmation -->
       <div v-if="currentStep === 3">
-        <h2>Review your data</h2>
-        <p><strong>Restaurant Name:</strong> {{ data.restaurant.name }}</p>
-        <p><strong>Restaurant Address:</strong> {{ data.restaurant.address }}</p>
-        <p><strong>Phone Number:</strong> {{ data.restaurant.phoneNumber }}</p>
-        <p><strong>Restaurant Email:</strong> {{ data.restaurant.email }}</p>
-        <p><strong>Website:</strong> {{ data.restaurant.website }}</p>
-        <p><strong>Opening Hours:</strong> {{ data.restaurant.openingHours }}</p>
-        <p><strong>Cuisine Type:</strong> {{ data.restaurant.cuisineType }}</p>
-        <p><strong>Owner Name:</strong> {{ data.owner.name }}</p>
-        <p><strong>Owner Email:</strong> {{ data.owner.email }}</p>
-        <p><strong>Owner Phone Number:</strong> {{ data.owner.phoneNumber }}</p>
-        <p><strong>Subscription:</strong> {{ data.subscription.plan }}</p>
-        <p><strong>Business License:</strong> {{ data.subscription.businessLicense }}</p>
-        <p><strong>Tax ID:</strong> {{ data.subscription.taxID }}</p>
-        <p><strong>Payment Methods:</strong> {{ data.subscription.paymentMethods }}</p>
-        <p><strong>Offers Delivery:</strong> {{ data.subscription.deliveryOptions ? 'Yes' : 'No' }}</p>
-        <p><strong>Has Reservation System:</strong> {{ data.subscription.reservationSystem ? 'Yes' : 'No' }}</p>
+        <FormGroup label="Confirm data" class="confirm-form-group">
+          <FormGroup class="confirm-group" sub-label="Restaurant Info">
+            <p><strong>Restaurant Name:</strong> {{ data.restaurant.name }}</p>
+            <p><strong>Address:</strong> {{ data.restaurant.address.country }}, {{ data.restaurant.address.city }}, {{ data.restaurant.address.county }} - {{ data.restaurant.address.eircode }}</p>
+            <p><strong>Phone Number:</strong> {{ data.restaurant.phoneNumber }}</p>
+            <p><strong>Email:</strong> {{ data.restaurant.email }}</p>
+            <p><strong>Website:</strong> {{ data.restaurant.website }}</p>
+            <p><strong>Opening Hours (Week):</strong> {{ data.restaurant.openingHours.week.open }} - {{ data.restaurant.openingHours.week.close }}</p>
+            <p><strong>Opening Hours (Saturday):</strong> {{ data.restaurant.openingHours.saturday.open }} - {{ data.restaurant.openingHours.saturday.close }}</p>
+            <p><strong>Opening Hours (Sunday):</strong> {{ data.restaurant.openingHours.sunday.open }} - {{ data.restaurant.openingHours.sunday.close }}</p>
+            <p><strong>Cuisine Type:</strong> {{ data.restaurant.cuisineType }}</p>
+          </FormGroup>
+
+          <!-- Owner Data -->
+          <FormGroup class="confirm-group" sub-label="Owner Details">
+            <p><strong>Name:</strong> {{ data.owner.name }}</p>
+            <p><strong>Username:</strong> {{ data.owner.username }}</p>
+            <p><strong>Phone Number:</strong> {{ data.owner.phoneNumber }}</p>
+            <p><strong>Email:</strong> {{ data.owner.email }}</p>
+          </FormGroup>
+
+          <!-- Subscription Data -->
+          <FormGroup class="confirm-group" sub-label="Subscription">
+            <p><strong>Selected Plan:</strong> {{ data.subscription.plan }}</p>
+            <p><strong>Promo Code:</strong> {{ data.subscription.promo || 'None' }}</p>
+          </FormGroup>
+        </FormGroup>
       </div>
 
       <!-- Navigation Buttons -->
@@ -195,8 +315,16 @@ const isLastStep = computed(() => currentStep.value === totalSteps.value - 1);
   </div>
 </template>
 
-<style scoped>
-.forms{
+<style>
+.confirm-group > .inner {
+  flex-direction: column;
+}
+
+.confirm-form-group .inner {
+  flex-direction: column;
+}
+
+.forms {
   max-width: 1100px;
   margin: 30px auto;
 }
@@ -213,6 +341,18 @@ const isLastStep = computed(() => currentStep.value === totalSteps.value - 1);
   flex-direction: column;
   align-items: center;
   margin-bottom: 10px;
+}
+
+.center {
+  margin: 0 auto;
+}
+
+.or-divider {
+  text-align: center;
+  font-weight: bold;
+  margin: 0 auto;
+  width: 100%;
+  display: block;
 }
 
 .progress-item:not(:last-child) {
@@ -236,7 +376,7 @@ const isLastStep = computed(() => currentStep.value === totalSteps.value - 1);
 .buttons {
   display: flex;
   justify-content: space-between;
-  margin-top: 20px;
+  padding: 20px 0;
 }
 
 button {

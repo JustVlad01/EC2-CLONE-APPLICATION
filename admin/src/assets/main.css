@@ -1,9 +1,12 @@
 @import './base.css';
 
-.sign-up-block{
+body{
+    font-family: Arial, sans-serif;
+}
+
+.form-block{
     display: block;
     height: 100vh;
-    font-family: Arial, sans-serif;
     padding: 30px;
     position: relative;
 }

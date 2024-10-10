@@ -78,7 +78,7 @@ const isLastStep = computed(() => currentStep.value === totalSteps.value - 1);
 </script>
 
 <template>
-  <div class="registration-block">
+  <div class="form-block">
     <h1>Register your account</h1>
 
     <!-- Progress bar -->

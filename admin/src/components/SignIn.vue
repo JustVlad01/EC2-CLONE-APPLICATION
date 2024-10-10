@@ -50,7 +50,7 @@ const handleUniqueCodeSubmission = async () => {
 </script>
 
 <template>
-  <div class="sign-in-container">
+  <div class="form-block">
     <h1>Sign In</h1>
     <div class="sign-in-form">
       <div class="form-group">
