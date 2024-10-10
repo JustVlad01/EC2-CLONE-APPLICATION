@@ -65,7 +65,7 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <div class="sign-up-block">
+  <div class="sign-up-block form-block">
     <div
         class="welcome-text"
         :style="welcomeTextStyles"
