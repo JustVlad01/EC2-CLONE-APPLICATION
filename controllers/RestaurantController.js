@@ -7,6 +7,7 @@ const jwt = require('jsonwebtoken');
 // Create a new restaurant with an owner
 const createRestaurant = async (req, res) => {
     try {
+        console.log("Creating restaurant");
         const { restaurant, owner, subscription } = req.body;
 
         // Check if the owner username or email already exists
@@ -14,15 +15,19 @@ const createRestaurant = async (req, res) => {
             $or: [{ username: owner.username }, { email: owner.email }]
         });
 
+        console.log("Checking if user exists");
         if (user) {
             if (user.username === owner.username) {
+                console.log("Owner username already exists");
                 return res.status(400).json({ msg: 'Owner username already exists' });
             }
             if (user.email === owner.email) {
+                console.log("Owner email already exists");
                 return res.status(400).json({ msg: 'Owner email already exists' });
             }
         }
 
+        console.log("Hashing password");
         // Hash the owner's password
         const saltRounds = 10;
         const hashedPassword = await bcrypt.hash(owner.password, saltRounds);

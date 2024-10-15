@@ -7,6 +7,10 @@ import FormGroup from "@/components/UI/FormGroup.vue";
 import axios from "axios";
 import SubscriptionSection from "@/components/SubscriptionSection.vue";
 import SubscriptionItem from "@/components/SubscriptionItem.vue";
+import { useSignUpStore } from "@/stores/signUpStore.js";
+
+// Store
+const signupStore = useSignUpStore();
 
 const errorSubmit = ref(null);
 
@@ -104,8 +108,7 @@ const submitForm = async () => {
     return;
   }
   try {
-    const response = await axios.post(`${import.meta.env.VITE_API_URL}/hotel/create`, data);
-    console.log(response.data);
+    signupStore.registerHotel(data);
   } catch (error) {
     errorSubmit.value = error.response.data;
     console.error('Error submitting form:', error.response.data);
