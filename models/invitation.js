@@ -16,11 +16,14 @@ const InvitationSchema = new mongoose.Schema({
     },
     expiresAt: {
         type: Date,
+        default: () => Date.now() + 24*60*60*1000
     },
     used: {
         type: Boolean,
         default: false,
     },
 })
+
+InvitationSchema.index({ expiresAt: 1 }, { expireAfterSeconds: 0 });
 
 module.exports = mongoose.model('Invitation', InvitationSchema);

@@ -10,7 +10,7 @@ exports.createInvitation = async (req, res) => {
         await invitation.save();
 
         // Generate the invitation url
-        const invitationUrl = `${req.protocol}://${req.get('host')}/register/${invitation.uniqueCode}`;
+        const invitationUrl = `${req.protocol}://${process.env.ADMIN_FRONTEND}/?code=${invitation.uniqueCode}`;
 
         res.status(201).json({
             message: 'Invitation created successfully',
