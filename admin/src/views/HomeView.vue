@@ -1,10 +1,26 @@
 <script setup>
+import { onMounted } from "vue";
 import SignUp from "@/components/SignOptions.vue";
 import {useSignUpStore} from "@/stores/signUpStore.js";
 import HotelRegistration from "@/components/HotelRegistration.vue";
 import RegistrationForm from "@/components/RegistrationForm.vue";
 
 const signUpStore = useSignUpStore();
+
+const checkForVerificationCode = () => {
+  const urlParams = new URLSearchParams(window.location.search);
+  const code = urlParams.get('code');
+
+  if (code) {
+    signUpStore.goTo(signUpStore.signUpPagesEnum.REGISTER);
+    signUpStore.setVerificationCode(code);
+  }
+
+  onMounted(() => {
+    checkForVerificationCode();
+  });
+}
+
 </script>
 
 <template>
