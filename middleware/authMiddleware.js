@@ -26,14 +26,16 @@ const authMiddleware = (requiredRoleName) => {
                 return res.status(404).json({ msg: 'User role not found' });
             }
 
-            // Find the required role from the DB based on its name
-            const requiredRole = await Role.findOne({ name: requiredRoleName, restaurantId: user.restaurantId });
-            if (!requiredRole) {
+            // Loop through required roles and find if user has any of them
+            const allowed = await Role.findOne({ name: { $in: requiredRoleName }, restaurantId: userRole.restaurantId });
+            if (!allowed || allowed.length === 0) {
                 return res.status(404).json({ msg: 'Required role not found' });
             }
 
-            // Compare priorities (lower priority number = more authority)
-            if (userRole.priority > requiredRole.priority) {
+            //Compare user's role priority with required role priority
+            const isAuthorized = allowed.isModified((requiredRole) => userRole.priority <= requiredRole.priority);
+
+            if (!isAuthorized) {
                 return res.status(403).json({ msg: 'Forbidden: Insufficient permissions' });
             }
 
