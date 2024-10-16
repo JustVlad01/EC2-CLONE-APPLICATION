@@ -1,4 +1,4 @@
-const Restaurant = require('../models/Restaurant');
+const Restaurant = require('../models/restaurant');
 const User = require('../models/User');
 const Role = require('../models/roles');
 const bcrypt = require('bcrypt');
@@ -7,20 +7,33 @@ const jwt = require('jsonwebtoken');
 // Create a new restaurant with an owner
 const createRestaurant = async (req, res) => {
     try {
+        console.log("Creating restaurant");
         const { restaurant, owner, subscription } = req.body;
 
-        // Check if the owner username already exists
-        let user = await User.findOne({ username: owner.username });
+        // Check if the owner username or email already exists
+        let user = await User.findOne({
+            $or: [{ username: owner.username }, { email: owner.email }]
+        });
+
+        console.log("Checking if user exists");
         if (user) {
-            return res.status(400).json({ msg: 'Owner username already exists' });
+            if (user.username === owner.username) {
+                console.log("Owner username already exists");
+                return res.status(400).json({ msg: 'Owner username already exists' });
+            }
+            if (user.email === owner.email) {
+                console.log("Owner email already exists");
+                return res.status(400).json({ msg: 'Owner email already exists' });
+            }
         }
 
+        console.log("Hashing password");
         // Hash the owner's password
         const saltRounds = 10;
         const hashedPassword = await bcrypt.hash(owner.password, saltRounds);
 
-        // Create the restaurant
-        const newRestaurant = new Restaurant({
+        //Restaurant fields
+        const restaurantData = {
             name: restaurant.name,
             address: restaurant.address,
             phone: restaurant.phoneNumber,
@@ -28,7 +41,18 @@ const createRestaurant = async (req, res) => {
             website: restaurant.website,
             openingHours: restaurant.openingHours,
             cuisineType: restaurant.cuisineType,
-        });
+        }
+
+        //Check promotion code
+        if (subscription.promo === 'PJ300') {
+            restaurantData.subscriptionStatus = 'active';
+            restaurantData.subscriptionEndDate = new Date(new Date().setDate(new Date().getDate() + 30));
+        }
+
+        // Create the restaurant
+        const newRestaurant = new Restaurant(
+            restaurantData
+        );
         await newRestaurant.save();
 
         // Create the Owner role with priority 1

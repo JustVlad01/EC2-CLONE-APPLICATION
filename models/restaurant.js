@@ -17,16 +17,16 @@ const restaurantSchema = new mongoose.Schema({
     //Opening hours schema
     openingHours: {
         week: {
-            open: { type: String, required: true },
-            close: { type: String, required: true },
+            open: { type: String},
+            close: { type: String},
         },
         saturday: {
-            open: { type: String, required: true },
-            close: { type: String, required: true},
+            open: { type: String},
+            close: { type: String},
         },
         sunday: {
-            open: { type: String, required: true },
-            close: { type: String, required: true},
+            open: { type: String},
+            close: { type: String},
         },
     },
     //Other fields
