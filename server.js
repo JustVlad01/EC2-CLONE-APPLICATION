@@ -21,11 +21,6 @@ app.use(express.json());
 const mongoose = require('mongoose');
 require('dotenv').config(); // For environment variables
 
-// Load models
-const Hotel = require('./models/restaurant');
-const HotelSettings = require('./models/hotelSettings');
-// Load other models similarly...
-
 // MongoDB Connection
 mongoose.connect('mongodb://localhost:27017/hotelOrderingSystem')
     .then(() => console.log('Connected to MongoDB'))

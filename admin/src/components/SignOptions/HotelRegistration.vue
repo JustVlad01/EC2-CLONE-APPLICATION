@@ -5,8 +5,8 @@ import { required, email, numeric, minLength } from '@vuelidate/validators';
 import InputField from "@/components/UI/InputField.vue";
 import FormGroup from "@/components/UI/FormGroup.vue";
 import axios from "axios";
-import SubscriptionSection from "@/components/SubscriptionSection.vue";
-import SubscriptionItem from "@/components/SubscriptionItem.vue";
+import SubscriptionSection from "@/components/SignOptions/SubscriptionSection.vue";
+import SubscriptionItem from "@/components/SignOptions/SubscriptionItem.vue";
 import { useSignUpStore } from "@/stores/signUpStore.js";
 
 // Store
