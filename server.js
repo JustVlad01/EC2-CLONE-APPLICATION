@@ -1,6 +1,7 @@
 const express = require('express');
 const path = require('path');
 const dotenv = require('dotenv');
+const invitationRoutes = require('./routes/invitation');
 
 dotenv.config();
 
@@ -24,6 +25,7 @@ require('dotenv').config(); // For environment variables
 // Load models
 const Hotel = require('./models/restaurant');
 const HotelSettings = require('./models/hotelSettings');
+const Invitation = require('./models/invitation');
 // Load other models similarly...
 
 // MongoDB Connection
@@ -40,5 +42,8 @@ db.once('open', () => {
 
 // Backend API routes
 app.use('/api', require('./routes/apiRoutes'));
+
+// Invitation routes
+app.use('/invitation', invitationRoutes);
 
 app.listen(3000, () => console.log('Server running on port 3000'));
