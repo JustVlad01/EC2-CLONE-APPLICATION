@@ -19,11 +19,11 @@ const createRestaurant = async (req, res) => {
         if (user) {
             if (user.username === owner.username) {
                 console.log("Owner username already exists");
-                return res.status(400).json({ msg: 'Owner username already exists' });
+                return res.status(400).json({ msg: 'Owner username or email already exists' });
             }
             if (user.email === owner.email) {
                 console.log("Owner email already exists");
-                return res.status(400).json({ msg: 'Owner email already exists' });
+                return res.status(400).json({ msg: 'Owner username or email already exists' });
             }
         }
 
