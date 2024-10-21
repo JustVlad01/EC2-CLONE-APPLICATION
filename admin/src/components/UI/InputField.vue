@@ -58,9 +58,7 @@ const closeError = () => {
   display: flex;
   flex-direction: column;
   margin-bottom: 20px;
-  flex: 1 1 200px;
-  max-width: 500px;
-  min-width: 200px;
+  width: 100%;
 }
 
 .input-field label {
