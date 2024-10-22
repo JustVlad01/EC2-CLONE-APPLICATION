@@ -27,10 +27,9 @@ const createRestaurant = async (req, res) => {
             }
         }
 
-        console.log("Hashing password");
-        // Hash the owner's password
-        const saltRounds = 10;
-        const hashedPassword = await bcrypt.hash(owner.password, saltRounds);
+        // Hash the password
+        const salt = await bcrypt.genSalt(10);
+        const hashedPassword = await bcrypt.hash(owner.password, salt);
 
         //Restaurant fields
         const restaurantData = {
@@ -89,7 +88,12 @@ const createRestaurant = async (req, res) => {
         );
 
         // Set the token in the response
-        res.cookie('token', token, { httpOnly: true, maxAge: 24 * 60 * 60 * 1000 });
+        res.cookie('token', token, {
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'Strict',
+            path: '/',
+            maxAge: 24 * 60 * 60 * 1000,
+        });
 
         res.status(201).json({
             msg: 'Restaurant and owner created successfully',

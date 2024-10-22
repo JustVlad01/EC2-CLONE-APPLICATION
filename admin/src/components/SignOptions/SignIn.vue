@@ -1,56 +1,38 @@
 <script setup>
 import { ref } from 'vue';
 import axios from 'axios';
+import { useRouter } from 'vue-router';
+
+const router = useRouter();
 
 const username = ref('');
 const password = ref('');
-const uniqueCode = ref('');
-const isFirstTime = ref(false);
-const showUniqueCodeInput = ref(false);
 
 // Function to handle sign-in logic
 const handleSignIn = async () => {
   try {
-    const response = await axios.post(`${import.meta.env.VITE_API_URL}/user/signin`, {
+    const response = await axios.post(`${import.meta.env.VITE_API_URL}/user/login`, {
       username: username.value,
       password: password.value,
-    });
+    }, {withCredentials: true});
 
-    // Assuming response contains a field indicating if it's the user's first time
-    if (response.data.isFirstTime) {
-      isFirstTime.value = true;
-      showUniqueCodeInput.value = true;
-    } else {
-      console.log('User signed in successfully');
-      // Redirect to the dashboard or another page after successful sign-in
+    //redirect to the dashboard
+    if (response.status === 200) {
+      try {
+        console.log('Redirecting...');
+        await router.push('/admin/dashboard');
+      } catch (e) {
+        console.error('Router push failed:', e);
+      }
     }
   } catch (error) {
     console.error('Error during sign-in:', error.response.data);
   }
 };
-
-// Function to handle first-time unique code submission
-const handleUniqueCodeSubmission = async () => {
-  try {
-    const response = await axios.post(`${import.meta.env.VITE_API_URL}/user/verify-code`, {
-      username: username.value,
-      uniqueCode: uniqueCode.value,
-    });
-
-    if (response.data.success) {
-      console.log('Unique code verified successfully');
-      // Proceed with the regular sign-in and redirect to the dashboard or another page
-    } else {
-      console.error('Invalid unique code');
-    }
-  } catch (error) {
-    console.error('Error verifying unique code:', error.response.data);
-  }
-};
 </script>
 
 <template>
-  <div class="form-block">
+  <div class="sign-in-container">
     <h1>Sign In</h1>
     <div class="sign-in-form">
       <div class="form-group">
@@ -62,16 +44,6 @@ const handleUniqueCodeSubmission = async () => {
         <input type="password" id="password" v-model="password" required />
       </div>
       <button @click="handleSignIn">Sign In</button>
-
-      <!-- Unique Code input shown only if it's the user's first time -->
-      <div v-if="showUniqueCodeInput" class="unique-code-section">
-        <h2>Enter Your Unique Code</h2>
-        <div class="form-group">
-          <label for="uniqueCode">Unique Code</label>
-          <input type="text" id="uniqueCode" v-model="uniqueCode" required />
-        </div>
-        <button @click="handleUniqueCodeSubmission">Submit Code</button>
-      </div>
     </div>
   </div>
 </template>
@@ -87,6 +59,10 @@ const handleUniqueCodeSubmission = async () => {
   text-align: center;
 }
 
+h1 {
+  margin-bottom: 20px;
+}
+
 .sign-in-form {
   display: flex;
   flex-direction: column;
@@ -99,7 +75,6 @@ const handleUniqueCodeSubmission = async () => {
 label {
   display: block;
   margin-bottom: 5px;
-  font-weight: bold;
 }
 
 input {
@@ -122,9 +97,5 @@ button {
 
 button:hover {
   background-color: #5757d1;
-}
-
-.unique-code-section {
-  margin-top: 20px;
 }
 </style>
