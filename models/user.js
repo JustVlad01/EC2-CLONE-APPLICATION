@@ -11,12 +11,4 @@ const userSchema = new mongoose.Schema({
     restaurantId: { type: mongoose.Schema.Types.ObjectId, ref: 'Restaurant', required: false },
 }, { timestamps: true });
 
-// Hash password before saving the user
-userSchema.pre('save', async function (next) {
-    if (this.isModified('password')) {
-        this.password = await bcrypt.hash(this.password, 10);
-    }
-    next();
-});
-
 module.exports = mongoose.model('User', userSchema);

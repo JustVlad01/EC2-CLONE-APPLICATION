@@ -27,7 +27,7 @@ export const useSignUpStore = defineStore('signUp', () => {
 
       if (response.status === 201) {
         // Redirect to /dashboard on successful registration
-        router.push('/dashboard');
+        router.push('/admin/dashboard');
       }
     } catch (error) {
       console.error("Error registering hotel:", error.response?.data?.msg || error.message);

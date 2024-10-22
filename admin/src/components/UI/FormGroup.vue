@@ -22,6 +22,11 @@ const props = defineProps(['label', 'subLabel']);
   background-color: white;
 }
 
+.form-group > .inner{
+  display: flex;
+  flex-direction: column;
+}
+
 .form-group.sub_form{
   max-width: unset;
   margin: unset;
