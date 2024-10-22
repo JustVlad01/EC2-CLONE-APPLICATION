@@ -2,6 +2,7 @@ const express = require('express');
 const path = require('path');
 const dotenv = require('dotenv');
 const cors = require('cors');
+const invitationRoutes = require('./routes/invitation');
 
 dotenv.config();
 
@@ -19,6 +20,10 @@ app.use(express.json());
 const mongoose = require('mongoose');
 require('dotenv').config(); // For environment variables
 
+
+// Load models
+const Invitation = require('./models/invitation');
+
 // MongoDB Connection
 mongoose.connect('mongodb://localhost:27017/hotelOrderingSystem')
     .then(() => console.log('Connected to MongoDB'))
@@ -33,5 +38,8 @@ db.once('open', () => {
 
 // Backend API routes
 app.use('/api', require('./routes/apiRoutes'));
+
+// Invitation routes
+app.use('/invitation', invitationRoutes);
 
 app.listen(3000, () => console.log('Server running on port 3000'));
