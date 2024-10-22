@@ -1,8 +1,9 @@
 <script setup>
-import SignUp from "@/components/SignOptions.vue";
+import SignUp from "@/components/SignOptions/SignOptions.vue";
 import {useSignUpStore} from "@/stores/signUpStore.js";
-import HotelRegistration from "@/components/HotelRegistration.vue";
-import RegistrationForm from "@/components/RegistrationForm.vue";
+import HotelRegistration from "@/components/SignOptions/HotelRegistration.vue";
+import RegistrationForm from "@/components/SignOptions/RegistrationForm.vue";
+import SignIn from "@/components/SignOptions/SignIn.vue";
 
 const signUpStore = useSignUpStore();
 </script>
@@ -20,6 +21,9 @@ const signUpStore = useSignUpStore();
     </Transition>
     <Transition name="fade" mode="out-in">
       <RegistrationForm v-if="signUpStore.currentPage === signUpStore.signUpPagesEnum.REGISTER"></RegistrationForm>
+    </Transition>
+    <Transition name="fade" mode="out-in">
+      <SignIn v-if="signUpStore.currentPage === signUpStore.signUpPagesEnum.SIGNIN"></SignIn>
     </Transition>
   </main>
 </template>
