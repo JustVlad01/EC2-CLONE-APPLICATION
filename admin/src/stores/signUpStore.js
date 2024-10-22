@@ -1,4 +1,4 @@
-import { ref, computed } from 'vue'
+import { ref } from 'vue'
 import { defineStore } from 'pinia'
 import axios from "axios";
 import {useRouter} from "vue-router";
@@ -15,9 +15,14 @@ export const useSignUpStore = defineStore('signUp', () => {
   }
 
   const currentPage = ref(signUpPagesEnum.WELCOME);
+  const verificationCode = ref(null);
 
   function goTo(page){
     currentPage.value = page;
+  }
+
+  function setVerificationCode(code){
+    verificationCode.value = code;
   }
 
   // Async function to register a hotel
@@ -34,5 +39,5 @@ export const useSignUpStore = defineStore('signUp', () => {
     }
   }
 
-  return { goTo, signUpPagesEnum, currentPage, registerHotel}
+  return { goTo, signUpPagesEnum, currentPage, registerHotel, setVerificationCode, verificationCode }
 })

@@ -10,9 +10,7 @@ const signUpStore = useSignUpStore();
 
 // Registration progress
 const progress = reactive([
-  { title: 'Account Details', completed: true },
-  { title: 'Personal Information', completed: false },
-  { title: 'Preferences', completed: false },
+  { title: 'Registration', completed: true },
   { title: 'Confirmation', completed: false }
 ]);
 
@@ -34,22 +32,46 @@ const data = reactive({
       state: '',
       zipCode: ''
     }
-  },
-  preferences: {
-    subscriptionPlan: '',
-    newsletterOptIn: false,
-    termsAccepted: false
   }
+});
+
+// Validation errors tracking
+const validationErrors = reactive({
+  username: false,
+  password: false,
+  confirmPassword: false,
+  email: false,
+  firstName: false,
+  lastName: false,
+  country: false,
+  city: false,
+  zipCode: false,
+  passwordsMatch: false
 });
 
 // Computed step to track the current step index
 const currentStep = ref(0);
-
 const totalSteps = computed(() => progress.length);
+
+// Validation function
+const validateStep = () => {
+  validationErrors.username = data.account.username === '';
+  validationErrors.password = data.account.password === '';
+  validationErrors.confirmPassword = data.account.confirmPassword === '';
+  validationErrors.firstName = data.personalInfo.firstName === '';
+  validationErrors.lastName = data.personalInfo.lastName === '';
+  validationErrors.email = data.personalInfo.email === '';
+  validationErrors.country = data.personalInfo.address.country === '';
+  validationErrors.city = data.personalInfo.address.city === '';
+  validationErrors.zipCode = data.personalInfo.address.zipCode === '';
+  validationErrors.passwordsMatch = data.account.password !== data.account.confirmPassword;
+
+  return !Object.values(validationErrors).includes(true);
+};
 
 // Function to move to the next step
 const nextStep = () => {
-  if (currentStep.value < totalSteps.value - 1) {
+  if (validateStep() && currentStep.value < totalSteps.value - 1) {
     progress[currentStep.value + 1].completed = true;
     currentStep.value += 1;
   }
@@ -65,11 +87,19 @@ const prevStep = () => {
 
 // Function to submit the form data
 const submitForm = async () => {
-  try {
-    const response = await axios.post(`${import.meta.env.VITE_API_URL}/user/register`, data);
-    console.log(response.data);
-  } catch (error) {
-    console.error('Error submitting form:', error.response.data);
+  if (validateStep()) {
+    try {
+      // Add verification code from the store to the form data
+      const registrationData = {
+        ...data,
+        verificationCode: signUpStore.verificationCode // Attach the code from the store
+      };
+      
+      const response = await axios.post(`${import.meta.env.VITE_API_URL}/user/register`, registrationData);
+      console.log(response.data);
+    } catch (error) {
+      console.error('Error submitting form:', error.response.data);
+    }
   }
 };
 
@@ -89,64 +119,37 @@ const isLastStep = computed(() => currentStep.value === totalSteps.value - 1);
       </div>
     </div>
 
-    <!-- Form groups based on current step -->
+    <!-- Registration form -->
     <div class="forms">
-      <!-- Step 1: Account Details -->
+      <!-- Step 1: Registration -->
       <div v-if="currentStep === 0">
-        <FormGroup label="Account Details">
-          <InputField type="text" label="Username" v-model="data.account.username" required />
-          <InputField type="password" label="Password" v-model="data.account.password" required/>
-          <InputField type="password" label="Confirm Password" v-model="data.account.confirmPassword" required/>
+        <FormGroup label="Account Information">
+          <InputField type="text" label="Username" v-model="data.account.username" :error="validationErrors.username" required />
+          <InputField type="password" label="Password" v-model="data.account.password" :error="validationErrors.password" required/>
+          <InputField type="password" label="Confirm Password" v-model="data.account.confirmPassword" :error="validationErrors.confirmPassword || validationErrors.passwordsMatch" required/>
         </FormGroup>
-      </div>
-
-      <!-- Step 2: Personal Information -->
-      <div v-if="currentStep === 1">
         <FormGroup label="Personal Information">
-          <InputField type="text" label="First Name" v-model="data.personalInfo.firstName" required/>
-          <InputField type="text" label="Last Name" v-model="data.personalInfo.lastName" required/>
-          <InputField type="email" label="Email" v-model="data.personalInfo.email" required/>
+          <InputField type="text" label="First Name" v-model="data.personalInfo.firstName" :error="validationErrors.firstName" required/>
+          <InputField type="text" label="Last Name" v-model="data.personalInfo.lastName" :error="validationErrors.lastName" required/>
+          <InputField type="email" label="Email" v-model="data.personalInfo.email" :error="validationErrors.email" required/>
           <InputField type="text" label="Phone Number" v-model="data.personalInfo.phoneNumber" />
         </FormGroup>
         <FormGroup label="Address">
-          <InputField type="text" label="Country" v-model="data.personalInfo.address.country" required/>
-          <InputField type="text" label="City" v-model="data.personalInfo.address.city" required/>
+          <InputField type="text" label="Country" v-model="data.personalInfo.address.country" :error="validationErrors.country" required/>
+          <InputField type="text" label="City" v-model="data.personalInfo.address.city" :error="validationErrors.city" required/>
           <InputField type="text" label="State" v-model="data.personalInfo.address.state" />
-          <InputField type="text" label="Zip Code" v-model="data.personalInfo.address.zipCode" required/>
+          <InputField type="text" label="Zip Code" v-model="data.personalInfo.address.zipCode" :error="validationErrors.zipCode" required/>
         </FormGroup>
       </div>
 
-      <!-- Step 3: Preferences -->
-      <div v-if="currentStep === 2">
-        <FormGroup label="Preferences">
-          <label for="subscriptionPlan">Subscription Plan</label>
-          <select id="subscriptionPlan" v-model="data.preferences.subscriptionPlan">
-            <option value="basic">Basic</option>
-            <option value="pro">Pro</option>
-            <option value="premium">Premium</option>
-          </select>
-          <div>
-            <input type="checkbox" id="newsletterOptIn" v-model="data.preferences.newsletterOptIn" />
-            <label for="newsletterOptIn">Subscribe to our newsletter</label>
-          </div>
-          <div>
-            <input type="checkbox" id="termsAccepted" v-model="data.preferences.termsAccepted" required />
-            <label for="termsAccepted">I accept the terms and conditions</label>
-          </div>
-        </FormGroup>
-      </div>
-
-      <!-- Step 4: Confirmation -->
-      <div v-if="currentStep === 3">
+      <!-- Step 2: Confirmation -->
+      <div v-if="currentStep === 1">
         <h2>Review your details</h2>
         <p><strong>Username:</strong> {{ data.account.username }}</p>
         <p><strong>Email:</strong> {{ data.personalInfo.email }}</p>
         <p><strong>Full Name:</strong> {{ data.personalInfo.firstName }} {{ data.personalInfo.lastName }}</p>
         <p><strong>Phone Number:</strong> {{ data.personalInfo.phoneNumber }}</p>
         <p><strong>Address:</strong> {{ data.personalInfo.address.country }}, {{ data.personalInfo.address.city }}, {{ data.personalInfo.address.state }}, {{ data.personalInfo.address.zipCode }}</p>
-        <p><strong>Subscription Plan:</strong> {{ data.preferences.subscriptionPlan }}</p>
-        <p><strong>Subscribed to Newsletter:</strong> {{ data.preferences.newsletterOptIn ? 'Yes' : 'No' }}</p>
-        <p><strong>Terms Accepted:</strong> {{ data.preferences.termsAccepted ? 'Yes' : 'No' }}</p>
       </div>
 
       <!-- Navigation Buttons -->
