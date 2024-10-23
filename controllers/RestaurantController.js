@@ -57,11 +57,11 @@ const createRestaurant = async (req, res) => {
         // Create the Owner role with priority 1
         const ownerRole = new Role({
             name: 'owner',
-            permissions: [], // Define the permissions for the owner role
             restaurantId: newRestaurant._id,
             priority: 1,
         });
         await ownerRole.save();
+        console.log(ownerRole);
 
         // Create the owner user
         user = new User({
@@ -80,8 +80,7 @@ const createRestaurant = async (req, res) => {
             {
                 userId: user._id,
                 username: user.username,
-                role: 'owner',
-                restaurantId: newRestaurant._id,
+                role: ownerRole._id,
             },
             process.env.JWT_SECRET_KEY,
             { expiresIn: '24h' }

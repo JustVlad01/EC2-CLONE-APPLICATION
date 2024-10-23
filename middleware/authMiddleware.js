@@ -1,8 +1,9 @@
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 const Role = require('../models/roles');
+const Page = require('../models/pageAccess'); // PageAccess model
 
-const authMiddleware = (requiredRoleName) => {
+const authMiddleware = (pageName) => {
     return async (req, res, next) => {
         const token = req.cookies.token;
         if (!token) {
@@ -10,37 +11,58 @@ const authMiddleware = (requiredRoleName) => {
         }
 
         try {
-            // Decode the JWT token to get the user ID
+            // Decode the JWT token to get the user ID and restaurantId
             const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY);
             req.user = decoded;
+            console.log("decoded", decoded);
 
-            // Find the user and their role from the DB
+            // Find the user and their role from the DB, including their restaurantId
             const user = await User.findById(req.user.id).populate('roleId');
             if (!user) {
                 return res.status(404).json({ msg: 'User not found' });
             }
+            req.user.restaurantId = user.restaurantId; // Add restaurantId to the request object
 
-            // Get the user's role and priority
-            const userRole = await Role.findById(user.roleId);
+            // Get the user's role and ensure it belongs to the same restaurant
+            const userRole = await Role.findOne({ _id: user.roleId, restaurantId: user.restaurantId });
+            console.log("User role:", userRole);
             if (!userRole) {
-                return res.status(404).json({ msg: 'User role not found' });
+                return res.status(404).json({ msg: 'User role not found or invalid for the restaurant' });
             }
 
-            // Loop through required roles and find if user has any of them
-            const allowed = await Role.findOne({ name: { $in: requiredRoleName }, restaurantId: userRole.restaurantId });
-            if (!allowed || allowed.length === 0) {
-                return res.status(404).json({ msg: 'Required role not found' });
+            // Check if the PageAccess exists for the given page and restaurant
+            let page = await Page.findOne({ name: pageName, restaurantId: user.restaurantId }).populate('allowedRoles');
+            if (!page) {
+                // If no page exists, create a new one and assign owner role by default
+                console.log(`Creating PageAccess for ${pageName} with owner access`);
+
+                const ownerRole = await Role.findOne({ name: 'owner', restaurantId: user.restaurantId });
+                if (!ownerRole) {
+                    return res.status(500).json({ msg: 'Owner role not found' });
+                }
+
+                // Create the PageAccess document and assign owner access
+                page = new Page({
+                    name: pageName,
+                    allowedRoles: [ownerRole._id], // Automatically give access to owner role
+                    restaurantId: user.restaurantId // Link page access to the restaurant
+                });
+                await page.save();
             }
 
-            //Compare user's role priority with required role priority
-            const isAuthorized = allowed.isModified((requiredRole) => userRole.priority <= requiredRole.priority);
+            // Check if the user's role is allowed to access the page
+            const hasAccess = page.allowedRoles.some(role => role._id.equals(user.roleId));
 
-            if (!isAuthorized) {
+            // Allow owner role full access
+            const isOwner = userRole.name === 'owner';
+            if (!isOwner && !hasAccess) {
                 return res.status(403).json({ msg: 'Forbidden: Insufficient permissions' });
             }
 
-            next();
+            next(); // User has access, proceed to the next middleware or controller
+
         } catch (error) {
+            console.log("User doesnt have access");
             return res.status(401).json({ msg: 'Invalid token' });
         }
     };

@@ -7,7 +7,7 @@ const userSchema = new mongoose.Schema({
     number: { type: String, required: true },
     email: { type: String, required: true, unique: true },
     password: { type: String, required: true },
-    role: { type: mongoose.Schema.Types.ObjectId, ref: 'Role', required: false },
+    roleId: { type: mongoose.Schema.Types.ObjectId, ref: 'Role', required: false },
     restaurantId: { type: mongoose.Schema.Types.ObjectId, ref: 'Restaurant', required: false },
 }, { timestamps: true });
 
