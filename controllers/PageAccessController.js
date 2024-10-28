@@ -1,5 +1,7 @@
 const PageAccess = require('../models/PageAccess');
 const Role = require('../models/roles');
+const roleData = require('../routes/pageAccessList');
+const Restaurant = require('../models/restaurant');
 
 // Create new page access rule (owner only)
 const createPageAccess = async (req, res) => {
@@ -79,9 +81,44 @@ const deletePageAccess = async (req, res) => {
     }
 };
 
+const syncPageAccesses = async (req, res) => {
+    const { restaurantId, pass } = req.params;
+
+    // Validate the provided password
+    if (pass !== process.env.SYNC_ACCESS_PASSWORD) {
+        return res.status(403).json({ msg: 'Forbidden: Invalid password' });
+    }
+
+    try {
+        // Fetch the restaurant
+        const restaurant = await Restaurant.findById(restaurantId);
+        if (!restaurant) {
+            return res.status(404).json({ msg: 'Restaurant not found' });
+        }
+
+        // Sync the page accesses for the restaurant
+        for (const [category, pages] of Object.entries(roleData)) {
+            for (const page of pages) {
+                const exists = await PageAccess.findOne({ name: page, restaurantId });
+                if (!exists) {
+                    await PageAccess.create({ name: page, restaurantId, allowedRoles: [] });
+                    console.log(`Created PageAccess for ${page} in restaurant ${restaurantId}`);
+                }
+            }
+        }
+
+        res.status(200).json({ msg: 'Page accesses synced successfully' });
+    } catch (error) {
+        console.error('Error syncing page accesses:', error);
+        res.status(500).json({ msg: 'Server error', error });
+    }
+};
+
+
 module.exports = {
     createPageAccess,
     getPageAccessByRestaurant,
     updatePageAccess,
     deletePageAccess,
+    syncPageAccesses
 };

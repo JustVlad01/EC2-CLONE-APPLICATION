@@ -1,6 +1,8 @@
 const Restaurant = require('../models/restaurant');
 const User = require('../models/User');
 const Role = require('../models/roles');
+const pageAccessList = require('../routes/pageAccessList');
+const PageAccess = require('../models/PageAccess');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 
@@ -93,6 +95,22 @@ const createRestaurant = async (req, res) => {
             path: '/',
             maxAge: 24 * 60 * 60 * 1000,
         });
+
+        const allPageAccesses = [];
+
+        // Loop through the pageAccessList and create entries for each
+        for (const group in pageAccessList) {
+            for (const pageName in pageAccessList[group]) {
+                allPageAccesses.push({
+                    name: pageAccessList[group][pageName],
+                    allowedRoles: [ownerRole._id],
+                    restaurantId: newRestaurant._id
+                });
+            }
+        }
+
+        // Bulk insert the page access entries
+        await PageAccess.insertMany(allPageAccesses);
 
         res.status(201).json({
             msg: 'Restaurant and owner created successfully',
