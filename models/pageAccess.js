@@ -4,6 +4,7 @@ const mongoose = require('mongoose');
 const pageAccessSchema = new mongoose.Schema({
     name: { type: String, required: true },
     allowedRoles: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Role' }],
+    type: { type: String, enum: ['page', 'action'], default: 'action' },
     restaurantId: { type: mongoose.Schema.Types.ObjectId, ref: 'Restaurant', required: true },
 }, { timestamps: true });
 

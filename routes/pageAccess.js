@@ -1,4 +1,5 @@
 const express = require('express');
+const { actions} = require('pageAccessList');
 const { createPageAccess, getPageAccessByRestaurant, updatePageAccess, deletePageAccess, syncPageAccesses } = require('../controllers/PageAccessController');
 const authMiddleware = require('../middleware/authMiddleware');
 

@@ -1,16 +1,15 @@
 const PageAccess = require('../models/PageAccess');
 const Role = require('../models/roles');
-const roleData = require('../routes/pageAccessList');
 const Restaurant = require('../models/restaurant');
+const { pages, actions } = require("../routes/pageAccessList"); // Import pages and actions from roleData
 
 // Create new page access rule (owner only)
 const createPageAccess = async (req, res) => {
     const { page, allowedRoles, restaurantId } = req.body;
 
     try {
-        // Middleware will handle the owner check and page creation automatically
         const pageAccess = new PageAccess({
-            page,
+            name: page,
             allowedRoles,
             restaurantId
         });
@@ -28,7 +27,10 @@ const getPageAccessByRestaurant = async (req, res) => {
     const { restaurantId } = req.params;
 
     try {
-        const pageAccessEntries = await PageAccess.find({ restaurantId }).populate('allowedRoles');
+        const pageAccessEntries = await PageAccess.find({ restaurantId })
+            .populate('allowedRoles')
+            .select('name type allowedRoles'); // Include type in the response
+
         if (!pageAccessEntries || pageAccessEntries.length === 0) {
             return res.status(404).json({ msg: 'No page access entries found for this restaurant' });
         }
@@ -40,10 +42,11 @@ const getPageAccessByRestaurant = async (req, res) => {
     }
 };
 
+
 // Update page access (owner only)
 const updatePageAccess = async (req, res) => {
     const { id } = req.params;
-    const { allowedRoles, restaurantId } = req.body;
+    const { allowedRoles } = req.body;
 
     try {
         const updatedPageAccess = await PageAccess.findByIdAndUpdate(
@@ -81,29 +84,37 @@ const deletePageAccess = async (req, res) => {
     }
 };
 
+// Sync page accesses when a restaurant is created or updated (for developer use only)
 const syncPageAccesses = async (req, res) => {
     const { restaurantId, pass } = req.params;
 
-    // Validate the provided password
     if (pass !== process.env.SYNC_ACCESS_PASSWORD) {
         return res.status(403).json({ msg: 'Forbidden: Invalid password' });
     }
 
     try {
-        // Fetch the restaurant
         const restaurant = await Restaurant.findById(restaurantId);
         if (!restaurant) {
             return res.status(404).json({ msg: 'Restaurant not found' });
         }
 
-        // Sync the page accesses for the restaurant
-        for (const [category, pages] of Object.entries(roleData)) {
-            for (const page of pages) {
-                const exists = await PageAccess.findOne({ name: page, restaurantId });
+        // Sync actions
+        for (const actionGroup of Object.values(actions)) {
+            for (const action of actionGroup) {
+                const exists = await PageAccess.findOne({ name: action, restaurantId, type: 'action' });
                 if (!exists) {
-                    await PageAccess.create({ name: page, restaurantId, allowedRoles: [] });
-                    console.log(`Created PageAccess for ${page} in restaurant ${restaurantId}`);
+                    await PageAccess.create({ name: action, restaurantId, allowedRoles: [], type: 'action' });
+                    console.log(`Created PageAccess for action: ${action} in restaurant ${restaurantId}`);
                 }
+            }
+        }
+
+        // Sync pages
+        for (const page of pages) {
+            const exists = await PageAccess.findOne({ name: page, restaurantId, type: 'page' });
+            if (!exists) {
+                await PageAccess.create({ name: page, restaurantId, allowedRoles: [], type: 'page' });
+                console.log(`Created PageAccess for page: ${page} in restaurant ${restaurantId}`);
             }
         }
 

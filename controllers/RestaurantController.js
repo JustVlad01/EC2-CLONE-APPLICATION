@@ -6,6 +6,36 @@ const PageAccess = require('../models/PageAccess');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 
+
+const syncPageAccesses = async (restaurantId, ownerRoleId) => {
+    const allPageAccesses = [];
+
+    // Loop through actions and create entries for each
+    for (const category in pageAccessList.actions) {
+        for (const action of pageAccessList.actions[category]) {
+            allPageAccesses.push({
+                name: action,
+                type: 'action', // Optional: distinguish between action and page
+                allowedRoles: [ownerRoleId],
+                restaurantId: restaurantId
+            });
+        }
+    }
+
+    // Loop through pages and create entries for each
+    for (const page of pageAccessList.pages) {
+        allPageAccesses.push({
+            name: page,
+            type: 'page', // Optional: distinguish between action and page
+            allowedRoles: [ownerRoleId],
+            restaurantId: restaurantId
+        });
+    }
+
+    // Bulk insert page access entries for the restaurant
+    await PageAccess.insertMany(allPageAccesses);
+};
+
 // Create a new restaurant with an owner
 const createRestaurant = async (req, res) => {
     try {
@@ -96,21 +126,8 @@ const createRestaurant = async (req, res) => {
             maxAge: 24 * 60 * 60 * 1000,
         });
 
-        const allPageAccesses = [];
-
-        // Loop through the pageAccessList and create entries for each
-        for (const group in pageAccessList) {
-            for (const pageName in pageAccessList[group]) {
-                allPageAccesses.push({
-                    name: pageAccessList[group][pageName],
-                    allowedRoles: [ownerRole._id],
-                    restaurantId: newRestaurant._id
-                });
-            }
-        }
-
-        // Bulk insert the page access entries
-        await PageAccess.insertMany(allPageAccesses);
+        // Sync page accesses for the new restaurant
+        await syncPageAccesses(newRestaurant._id, ownerRole._id);
 
         res.status(201).json({
             msg: 'Restaurant and owner created successfully',

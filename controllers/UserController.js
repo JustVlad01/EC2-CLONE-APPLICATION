@@ -157,8 +157,32 @@ const loginUser = async (req, res) => {
     }
 };
 
+const getUserProfile = async (req, res) => {
+    try {
+        const user = await User.findById(req.user.id)
+            .populate('roleId', 'name priority') // Populate role data if needed
+            .select('username name email roleId restaurantId'); // Customize fields as needed
+
+        if (!user) {
+            return res.status(404).json({ msg: 'User not found' });
+        }
+
+        res.status(200).json({
+            username: user.username,
+            name: user.name,
+            email: user.email,
+            role: user.roleId.name,
+            priority: user.roleId.priority
+        });
+    } catch (error) {
+        console.error('Error fetching user profile:', error);
+        res.status(500).json({ msg: 'Server error', error });
+    }
+};
+
 module.exports = {
     createUser,
     loginUser,
+    getUserProfile,
     loginRateLimiter
 };
