@@ -1,8 +1,40 @@
 const Restaurant = require('../models/restaurant');
 const User = require('../models/User');
 const Role = require('../models/roles');
+const pageAccessList = require('../routes/pageAccessList');
+const PageAccess = require('../models/PageAccess');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
+
+
+const syncPageAccesses = async (restaurantId, ownerRoleId) => {
+    const allPageAccesses = [];
+
+    // Loop through actions and create entries for each
+    for (const category in pageAccessList.actions) {
+        for (const action of pageAccessList.actions[category]) {
+            allPageAccesses.push({
+                name: action,
+                type: 'action', // Optional: distinguish between action and page
+                allowedRoles: [ownerRoleId],
+                restaurantId: restaurantId
+            });
+        }
+    }
+
+    // Loop through pages and create entries for each
+    for (const page of pageAccessList.pages) {
+        allPageAccesses.push({
+            name: page,
+            type: 'page', // Optional: distinguish between action and page
+            allowedRoles: [ownerRoleId],
+            restaurantId: restaurantId
+        });
+    }
+
+    // Bulk insert page access entries for the restaurant
+    await PageAccess.insertMany(allPageAccesses);
+};
 
 // Create a new restaurant with an owner
 const createRestaurant = async (req, res) => {
@@ -57,11 +89,11 @@ const createRestaurant = async (req, res) => {
         // Create the Owner role with priority 1
         const ownerRole = new Role({
             name: 'owner',
-            permissions: [], // Define the permissions for the owner role
             restaurantId: newRestaurant._id,
             priority: 1,
         });
         await ownerRole.save();
+        console.log(ownerRole);
 
         // Create the owner user
         user = new User({
@@ -80,8 +112,7 @@ const createRestaurant = async (req, res) => {
             {
                 userId: user._id,
                 username: user.username,
-                role: 'owner',
-                restaurantId: newRestaurant._id,
+                role: ownerRole._id,
             },
             process.env.JWT_SECRET_KEY,
             { expiresIn: '24h' }
@@ -94,6 +125,9 @@ const createRestaurant = async (req, res) => {
             path: '/',
             maxAge: 24 * 60 * 60 * 1000,
         });
+
+        // Sync page accesses for the new restaurant
+        await syncPageAccesses(newRestaurant._id, ownerRole._id);
 
         res.status(201).json({
             msg: 'Restaurant and owner created successfully',

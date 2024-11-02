@@ -94,8 +94,8 @@ const submitForm = async () => {
         ...data,
         verificationCode: signUpStore.verificationCode // Attach the code from the store
       };
-      
-      const response = await axios.post(`${import.meta.env.VITE_API_URL}/user/register`, registrationData);
+
+      const response = await axios.post(`${import.meta.env.VITE_API_URL}/user/create`, registrationData);
       console.log(response.data);
     } catch (error) {
       console.error('Error submitting form:', error.response.data);

@@ -1,13 +1,21 @@
 const User = require('../models/User');
+const Invitation = require('../models/Invitation');
+const Role = require('../models/Roles');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const xss = require("xss");
 const rateLimit = require("express-rate-limit");
 
-// Create a new user
+// Create a new user using an invitation
 const createUser = async (req, res) => {
     try {
-        const { username, password, role, email } = req.body;
+        const { username, password, email, verificationCode, name, number } = req.body;
+
+        // Validate the invitation code
+        const invitation = await Invitation.findOne({ uniqueCode: verificationCode, used: false });
+        if (!invitation) {
+            return res.status(400).json({ msg: 'Invalid or expired invitation code.' });
+        }
 
         // Check if the user already exists
         let user = await User.findOne({ username });
@@ -15,31 +23,53 @@ const createUser = async (req, res) => {
             return res.status(400).json({ msg: 'User already exists' });
         }
 
+        // Check if the "staff" role already exists for this restaurant
+        let roleToAssign = await Role.findOne({ name: 'staff', restaurantId: invitation.restaurantId });
+
+        // If the "staff" role doesn't exist, create it
+        if (!roleToAssign) {
+            roleToAssign = new Role({
+                name: 'staff',
+                restaurantId: invitation.restaurantId,
+                priority: 3, // Priority for staff role
+            });
+            await roleToAssign.save();
+        }
+
         // Hash the password
         const saltRounds = 10;
         const hashedPassword = await bcrypt.hash(password, saltRounds);
 
-        // Create new user
-        user = new User({ 
-            username, 
-            password: hashedPassword, 
-            role: role || 'staff',
-            email, 
+        // Create new user with name and number
+        user = new User({
+            username,
+            password: hashedPassword,
+            roleId: roleToAssign._id,
+            email,
+            restaurantId: invitation.restaurantId,
+            name,         // Add name field
+            number        // Add number field
         });
 
         await user.save();
+
+        // Mark the invitation as used
+        invitation.used = true;
+        await invitation.save();
 
         // Generate JWT
         const token = jwt.sign(
             {
                 id: user._id,
                 username: user.username,
-                role: user.role,
+                role: roleToAssign.name,
+                restaurantId: user.restaurantId,
             },
             process.env.JWT_SECRET_KEY,
-            { expiresIn: '24h' }   // Token expiry time
+            { expiresIn: '24h' } // Token expiry time
         );
 
+        // Send JWT as a cookie
         res.cookie('token', token, {
             httpOnly: true,
             maxAge: 24 * 60 * 60 * 1000,
@@ -50,11 +80,12 @@ const createUser = async (req, res) => {
             user: {
                 id: user._id,
                 username: user.username,
-                role: user.role,
+                role: roleToAssign.name,
                 email: user.email,
             }
         });
     } catch (error) {
+        console.error('Error creating user:', error);
         return res.status(500).json({ msg: 'Error creating user', error });
     }
 };
@@ -126,8 +157,32 @@ const loginUser = async (req, res) => {
     }
 };
 
+const getUserProfile = async (req, res) => {
+    try {
+        const user = await User.findById(req.user.id)
+            .populate('roleId', 'name priority') // Populate role data if needed
+            .select('username name email roleId restaurantId'); // Customize fields as needed
+
+        if (!user) {
+            return res.status(404).json({ msg: 'User not found' });
+        }
+
+        res.status(200).json({
+            username: user.username,
+            name: user.name,
+            email: user.email,
+            role: user.roleId.name,
+            priority: user.roleId.priority
+        });
+    } catch (error) {
+        console.error('Error fetching user profile:', error);
+        res.status(500).json({ msg: 'Server error', error });
+    }
+};
+
 module.exports = {
     createUser,
     loginUser,
+    getUserProfile,
     loginRateLimiter
 };

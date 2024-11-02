@@ -1,6 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import HomeView from '../views/HomeView.vue';
-import DashboardView from '../views/Dashboard/DashboardView.vue';
+import DashboardView from '@/views/AdminPages/DashboardView.vue';
 import AdminLayout from "@/layouts/AdminLayout.vue";
 import {authMiddleware} from "@/middleware/adminAuth.js";
 

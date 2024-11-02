@@ -19,6 +19,7 @@
     "axios": "^1.7.7",
     "express-rate-limit": "^7.4.1",
     "js-cookie": "^3.0.5",
+    "jwt-decode": "^4.0.0",
     "mixins": "^0.0.1",
     "pinia": "^2.1.7",
     "vue": "^3.4.29",

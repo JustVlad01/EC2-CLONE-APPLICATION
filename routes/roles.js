@@ -3,7 +3,7 @@ const router = express.Router();
 const { createRole } = require('../controllers/RoleController');
 const authMiddleware = require("../middleware/authMiddleware");
 
-// Register user
-router.post("/create", authMiddleware("owner"), createRole);
+// Create role
+router.post("/create", authMiddleware("CreateRole"), createRole);
 
 module.exports = router;

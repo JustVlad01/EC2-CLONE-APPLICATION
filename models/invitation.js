@@ -10,13 +10,18 @@ const InvitationSchema = new mongoose.Schema({
         type: String,
         default: uuidv4,
     },
+    restaurantId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Restaurant',
+        required: true,  // The invitation must be associated with a restaurant
+    },
     createdAt: {
         type: Date,
         default: Date.now,
     },
     expiresAt: {
         type: Date,
-        default: () => Date.now() + 24*60*60*1000
+        default: () => Date.now() + 24*60*60*1000 // 24 hours expiry
     },
     used: {
         type: Boolean,
@@ -26,4 +31,4 @@ const InvitationSchema = new mongoose.Schema({
 
 InvitationSchema.index({ expiresAt: 1 }, { expireAfterSeconds: 0 });
 
-module.exports = mongoose.model('Invitation', InvitationSchema);
+module.exports = mongoose.models.Invitation || mongoose.model('Invitation', InvitationSchema);
