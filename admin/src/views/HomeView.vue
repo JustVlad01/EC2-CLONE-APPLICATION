@@ -1,9 +1,9 @@
 <script setup>
 import { onMounted } from "vue";
-import SignUp from "@/components/SignOptions.vue";
+import SignUp from "@/components/SignOptions/SignOptions.vue";
 import { useSignUpStore } from "@/stores/signUpStore.js";
-import HotelRegistration from "@/components/HotelRegistration.vue";
-import RegistrationForm from "@/components/RegistrationForm.vue";
+import HotelRegistration from "@/components/SignOptions/HotelRegistration.vue";
+import RegistrationForm from "@/components/SignOptions/RegistrationForm.vue";
 import SignIn from "@/components/SignOptions/SignIn.vue";
 
 const signUpStore = useSignUpStore();
