@@ -1,12 +1,14 @@
 const mongoose = require('mongoose');
 
 const itemsSchema = new mongoose.Schema({
-    categoryId: { type: mongoose.Schema.Types.ObjectId, ref: 'Category', required: false },
+    categoryId: { type: mongoose.Schema.Types.ObjectId, ref: 'Category', required: true },
     title: { type: String, required: true },
     description: { type: String, required: true },
     price: { type: Number, required: true },
+    discountPrice: { type: Number },
     availability: { type: Boolean, required: true },
-    restaurantId: { type: mongoose.Schema.Types.ObjectId, ref: 'Restaurant', required: false },
+    allergens: [{ type: String }],
+    restaurantId: { type: mongoose.Schema.Types.ObjectId, ref: 'Restaurant', required: true }
 }, { timestamps: true });
 
-module.exports = mongoose.model('Items', itemsSchema);
+module.exports = mongoose.model('Item', itemsSchema);

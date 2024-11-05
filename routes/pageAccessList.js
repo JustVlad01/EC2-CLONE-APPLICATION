@@ -9,7 +9,9 @@ module.exports = {
         menu: [
             'CreateMenu',
             'UpdateMenu',
-            'DeleteMenu'
+            'DeleteMenu',
+            'ViewMenu',
+            'ViewMenuAdmin'
         ],
         hotel: [
             'CreateHotel',

@@ -43,6 +43,14 @@ onMounted(fetchUserProfile);
   </header>
 </template>
 
+<style>
+h1{
+  margin: 0;
+  font-size: 25px;
+  margin-bottom: 10px;
+}
+</style>
+
 <style scoped>
 header{
   background-color: #333333;
