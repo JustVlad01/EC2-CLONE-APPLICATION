@@ -7,5 +7,6 @@ router.use('/menu', require("./menu"))
 router.use('/roles', require("./roles"))
 router.use('/invitation', require("./invitation"))
 router.use('/pageAccess', require("./pageAccess"))
+router.use('/image', require("./image"))
 
 module.exports = router;

@@ -55,7 +55,7 @@ const toggleCollapse = () => {
       <span v-if="v$.description.$error" class="error">Category description is required and must be at least 5 characters.</span>
     </div>
 
-    <div v-for="(item, index) in category.items" :key="index">
+    <div v-for="item in category.items" :key="item.id">
       <ItemBlock :item="item" :category="props.categoryIndex" :itemIndex="index" />
     </div>
 

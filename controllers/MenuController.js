@@ -3,8 +3,12 @@ const Category = require('../models/category');
 const Item = require('../models/items');
 
 const createMenu = async (req, res) => {
+    const restaurantId = req.user.restaurantId;
+    console.log(req.body);
+    console.log("Creating restaurant menu");
+
     try {
-        const { title, shortTitle, description, timeRange, categories, restaurantId } = req.body;
+        const { title, shortTitle, description, timeRange, categories } = req.body;
 
         // Validate time range
         if (!timeRange.start || !timeRange.end) return res.status(400).json({ error: "Time range is required" });
@@ -36,6 +40,7 @@ const createMenu = async (req, res) => {
                     discountPrice: itemData.discountPrice,
                     availability: itemData.availability,
                     allergens: itemData.allergens,
+                    imageURL: itemData.imageUrl,
                     restaurantId
                 });
             }
@@ -43,7 +48,7 @@ const createMenu = async (req, res) => {
 
         return res.status(201).json({ message: 'Menu created successfully', menu });
     } catch (error) {
-        console.error(error);
+        console.error('Error creating menu:', error);
         res.status(500).json({ error: 'Server error' });
     }
 };

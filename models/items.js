@@ -8,6 +8,7 @@ const itemsSchema = new mongoose.Schema({
     discountPrice: { type: Number },
     availability: { type: Boolean, required: true },
     allergens: [{ type: String }],
+    imageURL: { type: String },
     restaurantId: { type: mongoose.Schema.Types.ObjectId, ref: 'Restaurant', required: true }
 }, { timestamps: true });
 

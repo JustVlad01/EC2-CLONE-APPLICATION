@@ -5,8 +5,8 @@ const menuSchema = new mongoose.Schema({
     shortTitle: { type: String },
     description: { type: String },
     timeRange: {
-        start: { type: Date, required: true },
-        end: { type: Date, required: true }
+        start: { type: String, required: true },
+        end: { type: String, required: true }
     },
     restaurantId: { type: mongoose.Schema.Types.ObjectId, ref: 'Restaurant', required: true }
 }, { timestamps: true });

@@ -17,7 +17,10 @@ module.exports = {
             'CreateHotel',
             'UpdateHotel',
             'DeleteHotel'
-        ]
+        ],
+        image: [
+            'UploadImage'
+        ],
     },
     pages: [
         'Dashboard',

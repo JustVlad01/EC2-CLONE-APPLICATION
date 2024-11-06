@@ -1,6 +1,6 @@
-// stores/menuStore.js
 import { defineStore } from 'pinia';
 import { reactive } from 'vue';
+import axios from "axios";
 
 export const useMenuStore = defineStore('menuStore', () => {
     const menu = reactive({
@@ -13,6 +13,7 @@ export const useMenuStore = defineStore('menuStore', () => {
 
     const addCategory = () => {
         menu.categories.push({
+            id: Date.now() + Math.random(), // Add unique ID to category
             name: '',
             description: '',
             items: []
@@ -25,18 +26,28 @@ export const useMenuStore = defineStore('menuStore', () => {
 
     const addItemToCategory = (categoryIndex) => {
         menu.categories[categoryIndex].items.push({
+            id: Date.now() + Math.random(), // Add unique ID to item
             title: '',
             description: '',
             price: '',
             availability: true,
             discountPrice: '',
-            allergens: []
+            allergens: [],
+            imageUrl: ''
         });
     };
 
-    const submitMenu = () => {
-        // Here, make the API call to submit `menu`
-        console.log('Submitting menu:', JSON.stringify(menu, null, 2));
+    const submitMenu = async () => {
+        try {
+            const response = await axios.post(
+                `${import.meta.env.VITE_API_URL}/menu/create`,
+                menu,
+                { withCredentials: true }
+            );
+            console.log('Menu submitted successfully:', response.data);
+        } catch (error) {
+            console.error('Error submitting menu:', error);
+        }
     };
 
     return { menu, addCategory, removeCategory, addItemToCategory, submitMenu };
