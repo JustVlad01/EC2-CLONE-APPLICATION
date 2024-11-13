@@ -56,6 +56,8 @@ header{
   background-color: #333333;
   color: white;
   display: flex;
+  position: fixed;
+  width: 100%;
   justify-content: space-between;
   align-items: center;
   padding: 10px 20px;

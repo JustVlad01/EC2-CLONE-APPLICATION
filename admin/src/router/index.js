@@ -5,6 +5,7 @@ import AdminLayout from "@/layouts/AdminLayout.vue";
 import { authMiddleware } from "@/middleware/adminAuth.js";
 import MenuView from "@/views/AdminPages/Menu/MenuView.vue";
 import MenuAddView from "@/views/AdminPages/Menu/MenuAddView.vue";
+import TablesView from "@/views/AdminPages/Tables/TablesView.vue";
 
 const routes = [
   {
@@ -50,6 +51,11 @@ const routes = [
             component: MenuAddView,
           }
         ]
+      },
+      {
+        path: 'tables',
+        name: 'tables',
+        component: TablesView,
       }
     ],
   }

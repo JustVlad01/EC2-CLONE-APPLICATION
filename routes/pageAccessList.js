@@ -21,6 +21,18 @@ module.exports = {
         image: [
             'UploadImage'
         ],
+        tables: [
+            'ManageTables',
+            'ViewTables',
+            'UpdateTable',
+            'DeleteTable'
+        ],
+        rooms: [
+            'ManageRooms',
+            'ViewRooms',
+            'UpdateRooms',
+            'DeleteRooms'
+        ],
     },
     pages: [
         'Dashboard',

@@ -23,6 +23,10 @@ a{
   border-radius: 5px;
 }
 
+.text-highlight-blue:hover{
+    background-color: #0056b3;
+}
+
 .addBlock, .removeBlock{
     display: flex;
     align-items: center;
@@ -76,4 +80,31 @@ input[type="checkbox"]{
 
 .collapse.closed{
     display: none;
+}
+
+.sort{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #84afdd;
+    color: white;
+    padding: 5px 10px;
+    border-radius: 5px;
+    user-select: none;
+    cursor: pointer;
+}
+
+.sort:hover{
+    background-color: #0056b3;
+}
+
+.sort > svg{
+    margin-right: 10px;
+}
+
+.info-message-block{
+    background-color: #d4edda;
+    color: #155724;
+    padding: 10px;
+    border-radius: 5px;
 }

@@ -1,19 +1,19 @@
 const mongoose = require('mongoose');
-const { v4: uuidv4 } = require('uuid');
 
 const TablesSchema = new mongoose.Schema({
     restaurantId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Restaurant',
-        required: true,  // The invitation must be associated with a restaurant
+        required: true,
     },
     capacity: {
         type: Number,
     },
     number: {
         type: Number,
+        required: true,
     },
-})
+}, { timestamps: true });
 
 TablesSchema.index({ restaurantId: 1, number: 1 }, { unique: true });
 
