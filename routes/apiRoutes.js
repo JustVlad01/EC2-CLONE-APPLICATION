@@ -10,5 +10,6 @@ router.use('/pageAccess', require("./pageAccess"))
 router.use('/image', require("./image"))
 router.use('/tables', require("./tables"))
 router.use('/rooms', require("./rooms"))
+router.use('/redirect', require("./redirect"))
 
 module.exports = router;

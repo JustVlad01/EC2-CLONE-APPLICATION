@@ -6,7 +6,6 @@ const Page = require('../models/pageAccess'); // PageAccess model
 const authMiddleware = (pageName = null) => {
     return async (req, res, next) => {
         const token = req.cookies.token;
-        console.log("Token:", token);
         if (!token) {
             return res.status(401).json({ msg: 'No token provided' });
         }
