@@ -9,13 +9,30 @@ module.exports = {
         menu: [
             'CreateMenu',
             'UpdateMenu',
-            'DeleteMenu'
+            'DeleteMenu',
+            'ViewMenu',
+            'ViewMenuAdmin'
         ],
         hotel: [
             'CreateHotel',
             'UpdateHotel',
             'DeleteHotel'
-        ]
+        ],
+        image: [
+            'UploadImage'
+        ],
+        tables: [
+            'ManageTables',
+            'ViewTables',
+            'UpdateTable',
+            'DeleteTable'
+        ],
+        rooms: [
+            'ManageRooms',
+            'ViewRooms',
+            'UpdateRooms',
+            'DeleteRooms'
+        ],
     },
     pages: [
         'Dashboard',

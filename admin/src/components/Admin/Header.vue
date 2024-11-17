@@ -43,11 +43,21 @@ onMounted(fetchUserProfile);
   </header>
 </template>
 
+<style>
+h1{
+  margin: 0;
+  font-size: 25px;
+  margin-bottom: 10px;
+}
+</style>
+
 <style scoped>
 header{
   background-color: #333333;
   color: white;
   display: flex;
+  position: fixed;
+  width: 100%;
   justify-content: space-between;
   align-items: center;
   padding: 10px 20px;

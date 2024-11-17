@@ -1,9 +1,28 @@
 <script setup>
+import SubList from "@/components/Admin/SubList.vue";
+import axios from "axios";
+import {ref} from "vue";
+
 const emit = defineEmits(['toggle-sidebar']); // Emit event to parent
 
 const handleToggle = () => {
   emit('toggle-sidebar'); // Emit the event to toggle sidebar
 };
+
+const clientUrl = ref("");
+
+const getClientRedirectLink = async () => {
+  try {
+    const response = await axios.get(`${import.meta.env.VITE_API_URL}/redirect/client-redirect`, {
+      withCredentials: true,
+    });
+    clientUrl.value = response.data.clientUrl;
+  } catch (error) {
+    console.error("Error getting client redirect link:", error.response?.data || error.message);
+  }
+};
+
+getClientRedirectLink();
 </script>
 
 <template>
@@ -27,9 +46,20 @@ const handleToggle = () => {
         <path d="M0 2.5A1.5 1.5 0 0 1 1.5 1h11A1.5 1.5 0 0 1 14 2.5v10.528c0 .3-.05.654-.238.972h.738a.5.5 0 0 0 .5-.5v-9a.5.5 0 0 1 1 0v9a1.5 1.5 0 0 1-1.5 1.5H1.497A1.497 1.497 0 0 1 0 13.5zM12 14c.37 0 .654-.211.853-.441.092-.106.147-.279.147-.531V2.5a.5.5 0 0 0-.5-.5h-11a.5.5 0 0 0-.5.5v11c0 .278.223.5.497.5z"></path>
         <path d="M2 3h10v2H2zm0 3h4v3H2zm0 4h4v1H2zm0 2h4v1H2zm5-6h2v1H7zm3 0h2v1h-2zM7 8h2v1H7zm3 0h2v1h-2zm-3 2h2v1H7zm3 0h2v1h-2zm-3 2h2v1H7zm3 0h2v1h-2z"></path>
       </svg>News</router-link></li>
-      <li><router-link to="/admin/menu"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-menu-down" viewBox="0 0 16 16">
-        <path d="M7.646.146a.5.5 0 0 1 .708 0L10.207 2H14a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h3.793zM1 7v3h14V7zm14-1V4a1 1 0 0 0-1-1h-3.793a1 1 0 0 1-.707-.293L8 1.207l-1.5 1.5A1 1 0 0 1 5.793 3H2a1 1 0 0 0-1 1v2zm0 5H1v2a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1zM2 4.5a.5.5 0 0 1 .5-.5h8a.5.5 0 0 1 0 1h-8a.5.5 0 0 1-.5-.5m0 4a.5.5 0 0 1 .5-.5h11a.5.5 0 0 1 0 1h-11a.5.5 0 0 1-.5-.5m0 4a.5.5 0 0 1 .5-.5h6a.5.5 0 0 1 0 1h-6a.5.5 0 0 1-.5-.5"></path>
-      </svg>Menu</router-link></li>
+      <!-- MENU ITEM -->
+      <SubList>
+        <template #default>
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-menu-down" viewBox="0 0 16 16">
+            <path d="M7.646.146a.5.5 0 0 1 .708 0L10.207 2H14a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h3.793zM1 7v3h14V7zm14-1V4a1 1 0 0 0-1-1h-3.793a1 1 0 0 1-.707-.293L8 1.207l-1.5 1.5A1 1 0 0 1 5.793 3H2a1 1 0 0 0-1 1v2zm0 5H1v2a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1zM2 4.5a.5.5 0 0 1 .5-.5h8a.5.5 0 0 1 0 1h-8a.5.5 0 0 1-.5-.5m0 4a.5.5 0 0 1 .5-.5h11a.5.5 0 0 1 0 1h-11a.5.5 0 0 1-.5-.5m0 4a.5.5 0 0 1 .5-.5h6a.5.5 0 0 1 0 1h-6a.5.5 0 0 1-.5-.5"></path>
+          </svg>
+          Menu
+        </template>
+        <template #sub-items>
+          <li><router-link to="/admin/menu/all">View Menus</router-link></li>
+          <li><router-link to="/admin/menu/add">Add Menu</router-link></li>
+        </template>
+      </SubList>
+      <!-- END MENU ITEM -->
       <li><router-link to="/admin/statistics"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-bar-chart" viewBox="0 0 16 16">
         <path d="M4 11H2v3h2zm5-4H7v7h2zm5-5v12h-2V2zm-2-1a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h2a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1zM6 7a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v7a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1zm-5 4a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1z"></path>
       </svg>Statistics</router-link></li>
@@ -44,16 +74,41 @@ const handleToggle = () => {
         <path d="M10 7v1.076c.54.166 1 .597 1 1.224v2.4c0 .816-.781 1.3-1.5 1.3h-3c-.719 0-1.5-.484-1.5-1.3V9.3c0-.627.46-1.058 1-1.224V7a2 2 0 1 1 4 0M7 7v1h2V7a1 1 0 0 0-2 0"></path>
         <path d="M14 14V4.5L9.5 0H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2M9.5 3A1.5 1.5 0 0 0 11 4.5h2V14a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1h5.5z"></path>
       </svg>Permissions</router-link></li>
+      <li class="app-redirect"><a :href="clientUrl">Ordering App</a></li>
     </ul>
   </div>
 </template>
 
 <style scoped>
+.app-redirect{
+  text-align: center;
+}
+
+.app-redirect a{
+  padding: 20px;
+  margin-top: 30px;
+  margin-right: 10px;
+  border-radius: 5px;
+  user-select: none;
+  background-color: #374161;
+  display: inline-block;
+  outline: 3px solid #374161;
+  outline-offset: 2px;
+  transition: all 0.3s;
+}
+
+.app-redirect a:hover{
+  background-color: #333 !important;
+  outline-offset: 0;
+  transition: all 0.3s;
+}
+
 ul {
   list-style: none;
   padding: 0;
   margin-top: 30px;
   margin-left: 10px;
+  user-select: none;
 }
 
 h2{
@@ -76,7 +131,12 @@ ul > li > a{
   border-radius: 5px 0 0 5px;
 }
 
-ul > li > a:hover{
+ul > li > a.router-link-exact-active{
+  background-color: white;
+  color: #173db2;
+}
+
+ul > li > a:not(.router-link-exact-active):hover{
   background-color: #1f4ed8;
 }
 

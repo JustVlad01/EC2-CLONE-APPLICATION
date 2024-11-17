@@ -7,10 +7,19 @@ const invitationRoutes = require('./routes/invitation');
 dotenv.config();
 
 const app = express();
+const allowedOrigins = [process.env.ADMIN_FRONTEND_URL, process.env.CLIENT_FRONTEND_URL];
+
 app.use(cors({
-    origin: 'http://localhost:5174',
+    origin: function (origin, callback) {
+        if (!origin || allowedOrigins.includes(origin)) {
+            callback(null, true);
+        } else {
+            callback(new Error('Not allowed by CORS'));
+        }
+    },
     credentials: true
 }));
+
 
 const cookieParser = require('cookie-parser');
 app.use(cookieParser());
@@ -18,7 +27,7 @@ app.use(cookieParser());
 app.use(express.json());
 
 const mongoose = require('mongoose');
-require('dotenv').config(); // For environment variables
+require('dotenv').config();
 
 
 // Load models

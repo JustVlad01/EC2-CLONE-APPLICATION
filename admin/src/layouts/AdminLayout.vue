@@ -54,6 +54,7 @@ const toggleSidebar = () => {
 .content {
   margin-left: 200px;
   padding: 20px;
+  margin-top: 40px;
   width: calc(100% - 200px);
   transition: margin-left 0.3s ease;
 }

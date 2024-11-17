@@ -1,8 +1,14 @@
 const mongoose = require('mongoose');
-const bcrypt = require('bcrypt');
 
 const menuSchema = new mongoose.Schema({
-    restaurantId: { type: mongoose.Schema.Types.ObjectId, ref: 'Restaurant', required: false },
+    title: { type: String, required: true },
+    shortTitle: { type: String },
+    description: { type: String },
+    timeRange: {
+        start: { type: String, required: true },
+        end: { type: String, required: true }
+    },
+    restaurantId: { type: mongoose.Schema.Types.ObjectId, ref: 'Restaurant', required: true }
 }, { timestamps: true });
 
 module.exports = mongoose.model('Menu', menuSchema);
