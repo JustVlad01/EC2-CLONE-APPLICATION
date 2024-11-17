@@ -39,7 +39,15 @@ const createRooms = async (req, res) => {
 
 const getRooms = async (req, res) => {
     try {
-        const restaurantId = req.user.restaurantId;
+        let { restaurantId } = req.params;
+
+        if (!restaurantId) {
+            if (!req.user || !req.user.restaurantId) {
+                return res.status(400).json({ error: 'Restaurant ID is required' });
+            }
+            restaurantId = req.user.restaurantId;
+        }
+
         const rooms = await Room.find({ restaurantId });
         res.status(200).json(rooms);
     } catch (error) {

@@ -6,7 +6,10 @@ const authMiddleware = require('../middleware/authMiddleware');
 // Create a new room
 router.post('/', authMiddleware('ManageRooms'), createRooms);
 
-// Get all rooms for the restaurant
+// Get all rooms for the restaurant without token
+router.get('/:restaurantId', getRooms);
+
+// Get all rooms for the restaurant with token
 router.get('/', authMiddleware('ViewRooms'), getRooms);
 
 // Update an existing room

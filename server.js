@@ -7,7 +7,7 @@ const invitationRoutes = require('./routes/invitation');
 dotenv.config();
 
 const app = express();
-const allowedOrigins = ['http://localhost:5173', 'http://192.168.1.9:5173'];
+const allowedOrigins = [process.env.ADMIN_FRONTEND_URL, process.env.CLIENT_FRONTEND_URL];
 
 app.use(cors({
     origin: function (origin, callback) {
@@ -27,7 +27,7 @@ app.use(cookieParser());
 app.use(express.json());
 
 const mongoose = require('mongoose');
-require('dotenv').config(); // For environment variables
+require('dotenv').config();
 
 
 // Load models

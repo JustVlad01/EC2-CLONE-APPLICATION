@@ -22,7 +22,16 @@ const createTable = async (req, res) => {
 
 const getTables = async (req, res) => {
     try {
-        const restaurantId = req.user.restaurantId;
+        let { restaurantId } = req.params;
+
+        if (!restaurantId) {
+            if (!req.user || !req.user.restaurantId) {
+                return res.status(400).json({ error: 'Restaurant ID is required' });
+            }
+            restaurantId = req.user.restaurantId;
+        }
+
+        console.log('restaurantId', restaurantId);
         const tables = await Table.find({ restaurantId });
         res.status(200).json(tables);
     } catch (error) {

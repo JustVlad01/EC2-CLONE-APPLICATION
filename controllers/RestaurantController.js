@@ -146,4 +146,26 @@ const createRestaurant = async (req, res) => {
     }
 };
 
-module.exports = { createRestaurant };
+const getRestaurantData = async (req, res) => {
+    try {
+        const restaurant = await Restaurant.findById(req.params.id, {
+            name: 1,
+            phone: 1,
+            email: 1,
+            website: 1,
+            address: 1,
+            openingHours: 1,
+        });
+
+        if (!restaurant) {
+            return res.status(404).json({ msg: 'Restaurant not found' });
+        }
+
+        res.status(200).json(restaurant);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ msg: 'Server error', error });
+    }
+};
+
+module.exports = { createRestaurant, getRestaurantData };
